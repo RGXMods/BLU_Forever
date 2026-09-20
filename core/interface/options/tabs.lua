@@ -767,6 +767,7 @@ function Tabs:Init()
     local function lootPanel(p)         CreateComingSoonPanel(p, "Loot")         end
 
     BLU.OptionsTabs = {
+        -- Left column: core management (General, Debug, Profiles, Sounds), matching Retail and Classic
         -- Row 1
         {text = "General",      create = BLU.CreateGeneralPanel,  row = 1, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_08"},
         {text = "Combat",       create = combatPanel,         row = 1, col = 2, icon = "Interface\\Icons\\Ability_Warrior_Charge"},
@@ -775,12 +776,13 @@ function Tabs:Init()
         {text = "Level Up",     eventType = "levelup",             row = 1, col = 5, icon = "Interface\\Icons\\Achievement_Level_100"},
         {text = "Loot",         create = lootPanel,               row = 1, col = 6, icon = "Interface\\Icons\\INV_Misc_Coin_02"},
         -- Row 2
-        {text = "Quest",        eventType = "quest",               row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Note_01"},
-        {text = "Reputation",   eventType = "reputation",           row = 2, col = 2, icon = "Interface\\Icons\\Achievement_Reputation_01"},
-        {text = "Profiles",     create = BLU.CreateProfilesPanel, row = 2, col = 3, icon = "Interface\\Icons\\Ability_Marksmanship"},
-        {text = "Sounds",       create = BLU.CreateSoundsPanel,   row = 2, col = 4, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
-        {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 5, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
-        {text = "Future 1",     placeholder = true,               row = 2, col = 6, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
+        {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
+        {text = "Quest",        eventType = "quest",               row = 2, col = 2, icon = "Interface\\Icons\\INV_Misc_Note_01"},
+        {text = "Reputation",   eventType = "reputation",           row = 2, col = 3, icon = "Interface\\Icons\\Achievement_Reputation_01"},
+        -- Row 3
+        {text = "Profiles",     create = BLU.CreateProfilesPanel, row = 3, col = 1, icon = "Interface\\Icons\\Ability_Marksmanship"},
+        -- Row 4
+        {text = "Sounds",       create = BLU.CreateSoundsPanel,   row = 4, col = 1, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
     }
     
     BLU:PrintDebug("[Tabs] Registered " .. #BLU.OptionsTabs .. " tabs")
