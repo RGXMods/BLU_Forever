@@ -23,7 +23,7 @@ local FEATURE_COMPAT = {
     combat       = { retail = true, mists = true, era = true, forever = true },
     loot         = { retail = true, mists = true, era = true, forever = true },
     collectibles = { retail = true, mists = true, era = true, forever = true },
-    death        = { retail = true, mists = true, era = true, forever = true },
+    hardcore    = { retail = true, mists = true, era = true, forever = true },
 
     achievement  = { retail = true, mists = true },
     battlepet    = { retail = true, mists = true },

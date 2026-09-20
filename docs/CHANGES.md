@@ -2,6 +2,10 @@
 
 ## Current Development Release
 
+### [v1.1.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.1.md) - 2026-09-20
+
+- Death tracker replaced by the Hardcore tab (self/party/raid/other player death sound triggers); tab grid matches Retail/Classic order with Future 2-6 restored and greyed tabs made non-clickable.
+
 ### [v1.1.0](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.0.md) - 2026-09-20
 
 - Flavor capability system with greyed-out tabs for features the current client cannot fire; full BLU grid restored (Retail-only tabs grey out on Forever). New Death tracker for hardcore play: lifetime count, last death time, hardcore status, reset, and a death sound trigger.
@@ -20,6 +24,10 @@
 `docs/CHANGES.md` is the canonical changelog summary for BLU.
 
 ## Current Development Release
+
+### [v1.1.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.1.md) - 2026-09-20
+
+- Death tracker replaced by the Hardcore tab (self/party/raid/other player death sound triggers); tab grid matches Retail/Classic order with Future 2-6 restored and greyed tabs made non-clickable.
 
 ### [v1.1.0](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.0.md) - 2026-09-20
 

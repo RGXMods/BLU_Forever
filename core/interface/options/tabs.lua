@@ -768,30 +768,35 @@ function Tabs:Init()
     local function preyPanel(p)         CreateComingSoonPanel(p, "Prey")         end
 
     BLU.OptionsTabs = {
-        -- Left column: core management (General, Debug, Profiles, Sounds), matching Retail and Classic
+        -- Grid order matches Retail and Classic exactly.
         -- Row 1
         {text = "General",      create = BLU.CreateGeneralPanel,  row = 1, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_08"},
-        {text = "Combat",       create = combatPanel,         row = 1, col = 2, feature = "combat",       icon = "Interface\\Icons\\Ability_Warrior_Charge"},
-        {text = "Collectibles", create = collectiblesPanel,   row = 1, col = 3, feature = "collectibles", icon = "Interface\\Icons\\INV_Misc_Toy_07"},
-        {text = "Death",        create = BLU.CreateDeathPanel, row = 1, col = 4, feature = "death",        icon = "Interface\\Icons\\Ability_Rogue_ShadowStrike"},
-        {text = "Honor",        eventType = "honorrank",      row = 1, col = 5, feature = "honorrank",   icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
-        {text = "Level Up",     eventType = "levelup",        row = 1, col = 6, feature = "levelup",      icon = "Interface\\Icons\\Achievement_Level_100"},
+        {text = "Achievement",  eventType = "achievement",       row = 1, col = 2, feature = "achievement", icon = "Interface\\Icons\\Achievement_Quests_Completed_08"},
+        {text = "Battle Pets",  eventType = "battlepet",         row = 1, col = 3, feature = "battlepet",   icon = "Interface\\Icons\\INV_Pet_BattlePetTraining"},
+        {text = "Collectibles", create = collectiblesPanel,   row = 1, col = 4, feature = "collectibles", icon = "Interface\\Icons\\INV_Misc_Toy_07"},
+        {text = "Combat",       create = combatPanel,         row = 1, col = 5, feature = "combat",       icon = "Interface\\Icons\\Ability_Warrior_Charge"},
+        {text = "Delve",        eventType = "delvecompanion",    row = 1, col = 6, feature = "delve",       icon = "Interface\\Icons\\INV_Misc_Map_01"},
         -- Row 2
         {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
-        {text = "Loot",         create = lootPanel,              row = 2, col = 2, feature = "loot",        icon = "Interface\\Icons\\INV_Misc_Coin_02"},
-        {text = "Quest",        eventType = "quest",             row = 2, col = 3, feature = "quest",       icon = "Interface\\Icons\\INV_Misc_Note_01"},
-        {text = "Reputation",   eventType = "reputation",        row = 2, col = 4, feature = "reputation",  icon = "Interface\\Icons\\Achievement_Reputation_01"},
-        {text = "Achievement",  eventType = "achievement",       row = 2, col = 5, feature = "achievement", icon = "Interface\\Icons\\Achievement_Quests_Completed_08"},
-        {text = "Battle Pets",  eventType = "battlepet",         row = 2, col = 6, feature = "battlepet",   icon = "Interface\\Icons\\INV_Pet_BattlePetTraining"},
+        {text = "Honor",        eventType = "honorrank",          row = 2, col = 2, feature = "honorrank",   icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
+        {text = "Housing",      create = BLU.CreateHousingPanel,  row = 2, col = 3, feature = "housing",     icon = "Interface\\Icons\\Trade_Blacksmithing"},
+        {text = "Level Up",     eventType = "levelup",            row = 2, col = 4, feature = "levelup",      icon = "Interface\\Icons\\Achievement_Level_100"},
+        {text = "Loot",         create = lootPanel,               row = 2, col = 5, feature = "loot",        icon = "Interface\\Icons\\INV_Misc_Coin_02"},
+        {text = "Prey",         create = preyPanel,               row = 2, col = 6, feature = "prey",        icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath"},
         -- Row 3
         {text = "Profiles",     create = BLU.CreateProfilesPanel, row = 3, col = 1, icon = "Interface\\Icons\\Ability_Marksmanship"},
-        {text = "Delve",        eventType = "delvecompanion",    row = 3, col = 2, feature = "delve",       icon = "Interface\\Icons\\INV_Misc_Map_01"},
-        {text = "Housing",      eventType = "housing",            row = 3, col = 3, feature = "housing",     icon = "Interface\\Icons\\Trade_Blacksmithing"},
-        {text = "Prey",         create = preyPanel,               row = 3, col = 4, feature = "prey",        icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath"},
-        {text = "Renown",       eventType = "renownrank",         row = 3, col = 5, feature = "renown",      icon = "Interface\\Icons\\UI_MajorFaction_Centaur"},
-        {text = "Trading Post", eventType = "tradingpost",       row = 3, col = 6, feature = "tradingpost", icon = "Interface\\Icons\\INV_Misc_Coin_02"},
+        {text = "Quest",        eventType = "quest",             row = 3, col = 2, feature = "quest",       icon = "Interface\\Icons\\INV_Misc_Note_01"},
+        {text = "Renown",       eventType = "renownrank",         row = 3, col = 3, feature = "renown",      icon = "Interface\\Icons\\UI_MajorFaction_Centaur"},
+        {text = "Reputation",   eventType = "reputation",          row = 3, col = 4, feature = "reputation",  icon = "Interface\\Icons\\Achievement_Reputation_01"},
+        {text = "Trading Post", eventType = "tradingpost",       row = 3, col = 5, feature = "tradingpost", icon = "Interface\\Icons\\INV_Misc_Coin_02"},
+        {text = "Hardcore",     create = BLU.CreateHardcorePanel,  row = 3, col = 6, feature = "hardcore",   icon = "Interface\\Icons\\INV_Misc_Bone_HumanSkull"},
         -- Row 4
         {text = "Sounds",       create = BLU.CreateSoundsPanel,   row = 4, col = 1, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
+        {text = "Future 2",     placeholder = true,               row = 4, col = 2, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
+        {text = "Future 3",     placeholder = true,               row = 4, col = 3, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
+        {text = "Future 4",     placeholder = true,               row = 4, col = 4, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
+        {text = "Future 5",     placeholder = true,               row = 4, col = 5, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
+        {text = "Future 6",     placeholder = true,               row = 4, col = 6, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
     }
 
     if BLU.Modules.flavors and BLU.Modules.flavors.ApplyToTabSpec then
