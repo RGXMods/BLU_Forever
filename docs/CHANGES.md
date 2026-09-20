@@ -2,6 +2,10 @@
 
 ## Current Development Release
 
+### [v1.0.2](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.2.md) - 2026-09-20
+
+- Header bar reads Better Level-Up! (Forever); left core column (General, Debug, Profiles, Sounds) restored to match Retail and Classic.
+
 ### [v1.0.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.1.md) - 2026-09-20
 
 - Restored the Collectibles module and placeholder tab - the Forever client ships the Collections system.
@@ -12,6 +16,10 @@
 `docs/CHANGES.md` is the canonical changelog summary for BLU.
 
 ## Current Development Release
+
+### [v1.0.2](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.2.md) - 2026-09-20
+
+- Header bar reads Better Level-Up! (Forever); left core column (General, Debug, Profiles, Sounds) restored to match Retail and Classic.
 
 ### [v1.0.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.1.md) - 2026-09-20
 

@@ -120,12 +120,12 @@ function Options:CreateOptionsPanel()
 
     local title = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("LEFT", header, "TOPLEFT", leftX, rowOneY)
-    title:SetText("|cff05dffaB|r|cffffffffetter |cff05dffaL|r|cffffffffevel-|cff05dffaU|r|cffffffffp|cff05dffa!|r")
+    title:SetText("|cff05dffaB|r|cffffffffetter |cff05dffaL|r|cffffffffevel-|cff05dffaU|r|cffffffffp|cff05dffa!|r |cffFFD700(Forever)|r")
     title:SetJustifyV("MIDDLE")
 
     local subtitle = header:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     subtitle:SetPoint("LEFT", header, "TOPLEFT", leftX, rowTwoY)
-    subtitle:SetText("Iconic game sounds for World of Warcraft events")
+    subtitle:SetText("Iconic game sounds for WoW Forever")
     subtitle:SetTextColor(0.7, 0.7, 0.7)
     subtitle:SetJustifyV("MIDDLE")
 
