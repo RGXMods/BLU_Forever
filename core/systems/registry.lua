@@ -16,6 +16,7 @@ local defaultBluSounds = {
     questturnin = "quest_turnin_default",
     reputation = "rep_default",
     honorrank = "honor_default",
+    death = "level_default",
 }
 
 local moduleCategoryMap = {

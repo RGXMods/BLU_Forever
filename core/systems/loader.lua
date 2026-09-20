@@ -37,6 +37,7 @@ local moduleRegistry = {
         reputation = "reputation",
         quest = "quest",
         honor = "honor",
+        death = "death",
 
         -- UI/event aliases mapped to concrete module ids.
         honorrank = "honor",
