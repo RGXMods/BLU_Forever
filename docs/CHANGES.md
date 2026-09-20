@@ -2,12 +2,20 @@
 
 ## Current Development Release
 
+### [v1.0.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.1.md) - 2026-09-20
+
+- Restored the Collectibles module and placeholder tab - the Forever client ships the Collections system.
+
 ### [v1.0.0](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.0.md) - 2026-09-20
 
 - Initial WoW Forever build, forked from Retail BLU v8.0.8: kept Level-Up, Quest, Reputation, Honor, Combat, Loot, minimap, and profiles; removed all retail-only features (Achievements, Battle Pets, Collectibles, Delves, Housing, Prey, Renown, Trading Post).
 `docs/CHANGES.md` is the canonical changelog summary for BLU.
 
 ## Current Development Release
+
+### [v1.0.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.0.1.md) - 2026-09-20
+
+- Restored the Collectibles module and placeholder tab - the Forever client ships the Collections system.
 
 ### [v8.0.8](https://github.com/RGXMods/BLU/blob/main/docs/changelogs/8.0.8.md) - 2026-09-20
 

@@ -30,6 +30,10 @@ local PLACEHOLDER_CONFIG = {
         icon = "Interface\\Icons\\Ability_Warrior_Charge",
         body = "Combat-related sound triggers are planned for a future update. Likely coverage includes combat milestone triggers, proc-style notifications, and high-signal event moments.",
     },
+    Collectibles = {
+        icon = "Interface\\Icons\\INV_Misc_Toy_07",
+        body = "Sound triggers for collectible milestones — mounts, pets, toys, transmog, and more — are planned for a future update. This placeholder tab reserves the category.",
+    },
     Loot = {
         icon = "Interface\\Icons\\INV_Misc_Coin_02",
         body = "Loot-related sound triggers are planned for a future update. Likely coverage includes rare drops, boss loot, and other item acquisition events.",
@@ -759,23 +763,24 @@ function Tabs:Init()
             CreateComingSoonPanel(p, "Combat")
         end
     end
+    local function collectiblesPanel(p) CreateComingSoonPanel(p, "Collectibles") end
     local function lootPanel(p)         CreateComingSoonPanel(p, "Loot")         end
 
     BLU.OptionsTabs = {
         -- Row 1
         {text = "General",      create = BLU.CreateGeneralPanel,  row = 1, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_08"},
         {text = "Combat",       create = combatPanel,         row = 1, col = 2, icon = "Interface\\Icons\\Ability_Warrior_Charge"},
-        {text = "Honor",        eventType = "honorrank",           row = 1, col = 3, icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
-        {text = "Level Up",     eventType = "levelup",             row = 1, col = 4, icon = "Interface\\Icons\\Achievement_Level_100"},
-        {text = "Loot",         create = lootPanel,               row = 1, col = 5, icon = "Interface\\Icons\\INV_Misc_Coin_02"},
-        {text = "Quest",        eventType = "quest",               row = 1, col = 6, icon = "Interface\\Icons\\INV_Misc_Note_01"},
+        {text = "Collectibles", create = collectiblesPanel,   row = 1, col = 3, icon = "Interface\\Icons\\INV_Misc_Toy_07"},
+        {text = "Honor",        eventType = "honorrank",           row = 1, col = 4, icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
+        {text = "Level Up",     eventType = "levelup",             row = 1, col = 5, icon = "Interface\\Icons\\Achievement_Level_100"},
+        {text = "Loot",         create = lootPanel,               row = 1, col = 6, icon = "Interface\\Icons\\INV_Misc_Coin_02"},
         -- Row 2
-        {text = "Reputation",   eventType = "reputation",           row = 2, col = 1, icon = "Interface\\Icons\\Achievement_Reputation_01"},
-        {text = "Profiles",     create = BLU.CreateProfilesPanel, row = 2, col = 2, icon = "Interface\\Icons\\Ability_Marksmanship"},
-        {text = "Sounds",       create = BLU.CreateSoundsPanel,   row = 2, col = 3, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
-        {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 4, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
-        {text = "Future 1",     placeholder = true,               row = 2, col = 5, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
-        {text = "Future 2",     placeholder = true,               row = 2, col = 6, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
+        {text = "Quest",        eventType = "quest",               row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Note_01"},
+        {text = "Reputation",   eventType = "reputation",           row = 2, col = 2, icon = "Interface\\Icons\\Achievement_Reputation_01"},
+        {text = "Profiles",     create = BLU.CreateProfilesPanel, row = 2, col = 3, icon = "Interface\\Icons\\Ability_Marksmanship"},
+        {text = "Sounds",       create = BLU.CreateSoundsPanel,   row = 2, col = 4, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
+        {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 5, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
+        {text = "Future 1",     placeholder = true,               row = 2, col = 6, icon = "Interface\\Icons\\INV_Misc_QuestionMark"},
     }
     
     BLU:PrintDebug("[Tabs] Registered " .. #BLU.OptionsTabs .. " tabs")
