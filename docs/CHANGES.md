@@ -2,6 +2,10 @@
 
 ## Current Development Release
 
+### [v1.1.2](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.2.md) - 2026-09-20
+
+- Fixed the stale feature-module init list (Hardcore now initializes; removed modules no longer attempted) and hardened greyed-out tab rendering (gating re-applied at panel build, no hover brightening).
+
 ### [v1.1.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.1.md) - 2026-09-20
 
 - Death tracker replaced by the Hardcore tab (self/party/raid/other player death sound triggers); tab grid matches Retail/Classic order with Future 2-6 restored and greyed tabs made non-clickable.
@@ -24,6 +28,10 @@
 `docs/CHANGES.md` is the canonical changelog summary for BLU.
 
 ## Current Development Release
+
+### [v1.1.2](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.2.md) - 2026-09-20
+
+- Fixed the stale feature-module init list (Hardcore now initializes; removed modules no longer attempted) and hardened greyed-out tab rendering (gating re-applied at panel build, no hover brightening).
 
 ### [v1.1.1](https://github.com/RGXMods/BLU_Forever/blob/main/docs/changelogs/1.1.1.md) - 2026-09-20
 
