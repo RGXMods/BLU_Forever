@@ -193,6 +193,10 @@ function Options:CreateOptionsPanel()
         if tabInfo.placeholder then
             tab:SetPlaceholder(true)
         end
+        -- Greyed-out flavor tabs are visible but not clickable
+        if tabInfo.greyed then
+            tab:Disable()
+        end
         panel.tabs[i] = tab
 
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")

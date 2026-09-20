@@ -16,7 +16,10 @@ local defaultBluSounds = {
     questturnin = "quest_turnin_default",
     reputation = "rep_default",
     honorrank = "honor_default",
-    death = "level_default",
+    death_self = "level_default",
+    death_party = "level_default",
+    death_raid = "level_default",
+    death_other = "level_default",
 }
 
 local moduleCategoryMap = {
@@ -24,6 +27,10 @@ local moduleCategoryMap = {
     questcomplete = "quest",
     questturnin = "quest",
     questprogress = "quest",
+    death_self = "death",
+    death_party = "death",
+    death_raid = "death",
+    death_other = "death",
 }
 
 local CATEGORY_SOUND_COOLDOWN_SECONDS = 0.20

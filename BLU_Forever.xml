@@ -30,7 +30,7 @@
     <Script file="core/interface/options/combat.lua"/>
     <Script file="core/interface/options/tabs.lua"/>
 <Script file="core/interface/options/general.lua"/>
-<Script file="core/interface/options/death.lua"/>
+<Script file="core/interface/options/hardcore.lua"/>
 <Script file="core/interface/options/profiles.lua"/>
  <Script file="core/interface/options/sounds.lua"/>
  <Script file="core/interface/options/sound_panel.lua"/>
@@ -38,7 +38,7 @@
 
 <!-- Feature Modules -->
 <Script file="modules/Quest/Quest.lua"/>
-<Script file="modules/Death/Death.lua"/>
+<Script file="modules/Hardcore/Hardcore.lua"/>
 <Script file="modules/Debug/Debug.lua"/>
 <Script file="modules/Combat/Combat.lua"/>
 <Script file="modules/LevelUp/LevelUp.lua"/>

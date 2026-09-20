@@ -1,5 +1,5 @@
 ## Interface: 16001
-## Version: v1.1.0
+## Version: v1.1.1
 ## Title:  |cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r |cff05dffaU|r|cffffffffp|r|cff05dffa!|r |cffFFD700(Forever)|r
 ## Notes: |n|r  |cff05dffa/blu -|r Open options panel  |n|r   |cff05dffaBy DonnieDice|r
 ## Author: DonnieDice
