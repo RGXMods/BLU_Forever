@@ -203,7 +203,17 @@ function Options:CreateOptionsPanel()
         content:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
         content:Hide()
 
-        if tabInfo.create then
+        if tabInfo.greyed and tabInfo.greyedMessage then
+            local greyedTitle = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+            greyedTitle:SetPoint("TOPLEFT", 18, -40)
+            greyedTitle:SetText("|cff05dffa" .. tabInfo.text .. "|r")
+
+            local greyedMessage = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+            greyedMessage:SetPoint("TOPLEFT", 18, -76)
+            greyedMessage:SetPoint("RIGHT", -18, 0)
+            greyedMessage:SetText(tabInfo.greyedMessage)
+            greyedMessage:SetJustifyH("LEFT")
+        elseif tabInfo.create then
             local success, err = pcall(tabInfo.create, content)
             if not success then BLU:PrintError("Error creating content for " .. tabInfo.text .. ": " .. tostring(err)) end
         elseif tabInfo.eventType then
@@ -212,7 +222,7 @@ function Options:CreateOptionsPanel()
         elseif tabInfo.placeholder then
             local placeholderMessage = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
             placeholderMessage:SetPoint("TOPLEFT", 18, -18)
-            placeholderMessage:SetText("|cff778899Reserved for a future options panel.|r")
+            placeholderMessage:SetText(tabInfo.greyedMessage or "|cff778899Reserved for a future options panel.|r")
             placeholderMessage:SetJustifyH("LEFT")
         end
         panel.contents[i] = content
@@ -235,7 +245,9 @@ function Options:CreateOptionsPanel()
     local function RebuildTab(content, tabInfo)
         ClearTabContent(content)
         content._bluDirty = nil
-        if tabInfo.create then
+        if tabInfo.greyed and tabInfo.greyedMessage then
+            -- Greyed-out tabs never rebuild; their message is static
+        elseif tabInfo.create then
             local ok, err = pcall(tabInfo.create, content)
             if not ok then BLU:PrintError("Tab rebuild error: " .. tostring(err)) end
         elseif tabInfo.eventType then

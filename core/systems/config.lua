@@ -58,8 +58,11 @@ Config.defaults = {
         selectedSounds = {
             questcomplete = "None",
             questprogress = "None",
+            death = "None",
         },
         userCustomSounds = {},
+        
+        deathCount = 0,
         
         soundVolumes = {
             levelup = "medium",
@@ -69,6 +72,7 @@ Config.defaults = {
             questaccept = "medium",
             questprogress = "medium",
             honorrank = "medium",
+            death = "medium",
             combat_start_sound = "medium",
             combat_end_sound = "medium",
             combat_music_track = "medium",
@@ -85,6 +89,7 @@ Config.defaults = {
             questaccept = "Master",
             questprogress = "Master",
             honorrank = "Master",
+            death = "Master",
             combat_start_sound = "Master",
             combat_end_sound = "Master",
             combat_music_track = "Music",
