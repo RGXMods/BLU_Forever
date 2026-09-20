@@ -42,6 +42,7 @@
 <Script file="modules/Reputation/Reputation.lua"/>
 <Script file="modules/Honor/Honor.lua"/>
 <Script file="modules/Loot/Loot.lua"/>
+<Script file="modules/Collectibles/Collectibles.lua"/>
 
 <!-- Commands MUST load after options module is registered -->
 <Script file="core/commands.lua"/>

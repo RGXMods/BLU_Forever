@@ -9,6 +9,7 @@
 - **Reputation sounds** — rank-up triggers for faction grinds.
 - **Honor rank sounds** — PvP rank progression triggers on the classic honor system.
 - **Combat triggers** — Bloodlust/Heroism and proc-style combat cues through the RGXCombat integration.
+- **Collections tab** � collectible milestone triggers (mounts, pets, toys, transmog) are reserved for the Forever client's Collections system.
 - **Minimap button** — left-click opens the options panel; drag to reposition; Ctrl+Right-click hides it (`/blu icon on` restores).
 - **Full options panel** — General, Combat, Honor, Level Up, Loot, Quest, Reputation, Profiles, and Sounds tabs with profile support.
 - **Custom sounds** — add your own .ogg files, or choose from the bundled BLU defaults and shared-media packs.
