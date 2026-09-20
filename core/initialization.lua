@@ -1,0 +1,277 @@
+--=====================================================================================
+-- BLU | Proper Initialization Manager
+-- Author: donniedice
+-- Description: Centralized initialization to prevent duplicates and ensure proper order
+--=====================================================================================
+
+local addonName = ...
+local BLU = _G["BLU"]
+local INIT_EVENT_ID_ENTERING_WORLD = "init_player_entering_world"
+local INIT_EVENT_ID_PLAYER_LOGIN = "init_player_login"
+
+-- Track what's been initialized
+BLU.initialized = {}
+
+local moduleSettingKeyMap = {
+	honor = "honorrank",
+	renown = "renownrank",
+	delve = "delvecompanion",
+	housing = "housing",
+}
+
+local moduleLegacyToggleMap = {
+	levelup = "enableLevelUp",
+	achievement = "enableAchievement",
+	reputation = "enableReputation",
+	quest = "enableQuest",
+	battlepet = "enableBattlePet",
+	honor = "enableHonorRank",
+	renown = "enableRenownRank",
+	tradingpost = "enableTradingPost",
+	delve = "enableDelveCompanion",
+	housing = "enableHousing",
+}
+
+function BLU:IsFeatureModuleEnabled(moduleName)
+	if not self.db then
+		return true
+	end
+
+	local profile = self.db
+	local moduleKey = moduleSettingKeyMap[moduleName] or moduleName
+	if profile.modules and profile.modules[moduleKey] == false then
+		return false
+	end
+
+	local legacyToggle = moduleLegacyToggleMap[moduleName]
+	if legacyToggle and profile[legacyToggle] == false then
+		return false
+	end
+
+	return true
+end
+
+-- Main initialization function
+function BLU:Initialize()
+	BLU:PrintDebug("[Init] BLU:Initialize() called.")
+	if self.isInitialized then
+		BLU:PrintDebug("[Init] Already initialized, skipping.")
+		return
+	end
+
+	BLU:PrintDebug("[Init] Starting BLU initialization")
+	BLU:PrintDebug("[Init] BLU.db before Phase 1: " .. tostring(BLU.db))
+	BLU:PrintDebug("[Init] BLUForeverDB global before Phase 1: " .. tostring(_G["BLUForeverDB"]))
+
+	-- Phase 1: Core Systems (must be first)
+	self:InitializePhase("core", {
+		"config", -- Configuration system (MUST be first for defaults)
+		"database", -- Database (needs config.defaults)
+		"utils", -- Utility functions
+		"sound_muter" -- Sound muting/unmuting
+	})
+
+	BLU:PrintDebug("[Init] BLU.db after Phase 1: " .. tostring(BLU.db))
+	BLU:PrintDebug("[Init] BLUForeverDB global after Phase 1: " .. tostring(_G["BLUForeverDB"]))
+
+	-- Phase 2: Registry and Loader
+	self:InitializePhase("registry", {
+		"registry",
+		"internal_sounds", -- Must come after registry
+		"usersounds", -- Must come after registry
+		"sharedmedia", -- Optional LibSharedMedia integration (detected at runtime)
+		"loader"
+	})
+
+	BLU:PrintDebug("[Init] BLU.db after Phase 2: " .. tostring(BLU.db))
+
+	-- Phase 3: Interface System (design MUST come first!)
+	self:InitializePhase("interface", {
+		"design", -- Design system MUST be first
+		"widgets", -- Widget helpers
+		"profiles", -- Profiles panel
+		"tabs", -- Tab system
+		"general", -- General panel
+		"debug", -- Debug panel module
+		"sound_panel", -- Sound panel components
+		"sounds", -- Sounds panel
+		"modules", -- Modules panel
+		"options" -- Main options panel (MUST be last)
+	})
+
+	BLU:PrintDebug("[Init] BLU.db after Phase 3: " .. tostring(BLU.db))
+	BLU:PrintDebug("[Init] Options panel created: " .. tostring(BLU.OptionsPanel ~= nil))
+	BLU:PrintDebug("[Init] OpenOptions available: " .. tostring(BLU.OpenOptions ~= nil))
+
+	-- Phase 4: Feature Modules
+	self:InitializePhase("modules", {
+		"quest",
+		"combat",
+		"levelup",
+		"achievement",
+		"reputation",
+		"battlepet",
+		"honor",
+		"renown",
+		"tradingpost",
+		"delve",
+		"housing"
+	})
+
+	BLU:PrintDebug("[Init] BLU.db after Phase 4: " .. tostring(BLU.db))
+
+	-- Phase 5: Final Setup
+	self:LoadSavedSettings()
+
+	self.isInitialized = true
+	BLU:PrintDebug("[Init] BLU:Initialize() finished. BLU.db is " .. tostring(self.db))
+	BLU:PrintDebug("[Init] BLUForeverDB global at end: " .. tostring(_G["BLUForeverDB"]))
+	BLU:PrintDebug("[Init] OpenOptions function: " .. tostring(BLU.OpenOptions))
+
+	self:ShowWelcomeMessage()
+end
+
+-- Initialize a phase of modules
+function BLU:InitializePhase(phaseName, moduleList)
+	self:PrintDebug("[Init] Phase: " .. phaseName)
+
+	for _, moduleName in ipairs(moduleList) do
+		if phaseName == "modules" and not self:IsFeatureModuleEnabled(moduleName) then
+			self:PrintDebug("[Init] Skipping disabled feature module: " .. moduleName)
+		else
+			if not self.initialized[moduleName] then
+				local success = self:InitializeModule(moduleName)
+				if not success then
+					self:PrintDebug("[Init] Warning: Module '" .. moduleName .. "' failed to initialize")
+				end
+			end
+		end
+	end
+end
+
+-- Initialize a single module
+function BLU:InitializeModule(moduleName)
+	-- Check if already initialized
+	if self.initialized[moduleName] then
+		self:PrintDebug("[Init] Module already initialized: " .. moduleName)
+		return true
+	end
+
+	-- Find the module
+	local module = nil
+
+	-- Check in BLU.Modules
+	if self.Modules and self.Modules[moduleName] then
+		self:PrintDebug("[Init] Found module in BLU.Modules: " .. moduleName)
+		module = self.Modules[moduleName]
+	end
+
+	-- Initialize if found
+	if module then
+		self:PrintDebug("[Init] Attempting to call Init for module: " .. moduleName)
+		if module.Init then
+			local success, err = pcall(function() module:Init() end)
+			if success then
+				self.initialized[moduleName] = true
+				self.LoadedModules = self.LoadedModules or {}
+				self.LoadedModules[moduleName] = module
+				self:PrintDebug("[Init] Successfully initialized: " .. moduleName)
+				return true
+			else
+				self:PrintError("[Init] Error initializing " .. moduleName .. ": " .. tostring(err))
+				return false
+			end
+		else
+			self:PrintDebug("[Init] Module has no Init method: " .. moduleName)
+			self.initialized[moduleName] = true -- Mark as handled
+			return false
+		end
+	else
+		self:PrintDebug("[Init] Module not found: " .. moduleName)
+		return false
+	end
+end
+
+-- Load saved settings
+function BLU:LoadSavedSettings()
+	if self.initialized.savedSettings then
+		return
+	end
+
+ -- Ensure database exists
+ if not self.db then
+ if self.Modules and self.Modules.database and self.Modules.database.Init then
+ self.Modules.database:Init()
+ else
+ self:PrintError("[Init] Cannot load settings - database not available")
+ return
+ end
+ end
+
+	-- Apply saved settings
+	if self.db then
+		if self.db.enabled == false then
+			self:Print("|cffff0000BLU is currently disabled|r")
+		end
+
+		-- Sync debug mode
+		if self.db.debugMode ~= nil then
+			self.debugMode = self.db.debugMode
+		end
+	end
+
+	self.initialized.savedSettings = true
+	self:PrintDebug("[Init] Saved settings loaded")
+end
+
+-- Show help
+function BLU:ShowHelp()
+	self:Print("BLU Commands:")
+	self:Print(" |cffffff00/blu|r - Open options")
+	self:Print(" |cffffff00/blu debug|r - Toggle debug mode")
+	self:Print(" |cffffff00/blu status|r - Show addon status")
+	self:Print(" |cffffff00/blu icon on|r|cffffffff/|r|cffffff00off|r - Show or hide the minimap icon")
+	self:Print(" |cffffff00/blu help|r - Show this help")
+end
+
+-- Play test sound
+function BLU:PlayTestSound(eventType)
+	if self.Modules and self.Modules.registry and self.Modules.registry.PlaySound then
+		self.Modules.registry:PlaySound(eventType or "levelup")
+		self:Print("Playing test sound: " .. (eventType or "levelup"))
+	else
+		self:Print("Sound system not available")
+	end
+end
+
+local function BootstrapFromWorldEvent(event)
+	BLU:PrintDebug("[Init] " .. tostring(event) .. " event fired for BLU. Initializing...")
+	BLU:Initialize()
+
+	-- Create the options panel so it's available in the interface options
+	if BLU.CreateOptionsPanel and not BLU.OptionsPanel then
+		BLU:CreateOptionsPanel()
+	elseif not BLU.CreateOptionsPanel then
+		BLU:PrintError("[Init] CreateOptionsPanel not available after initialization!")
+	end
+
+	-- Create the minimap button once the database and options are ready
+	if BLU.Modules.minimap and BLU.Modules.minimap.Init then
+		pcall(function() BLU.Modules.minimap:Init() end)
+	end
+
+	-- Unregister this event as it only needs to fire once
+	BLU:UnregisterEvent("PLAYER_ENTERING_WORLD", INIT_EVENT_ID_ENTERING_WORLD)
+	BLU:UnregisterEvent("PLAYER_LOGIN", INIT_EVENT_ID_PLAYER_LOGIN)
+end
+
+-- Hook into both events. Some reload/login orders can miss one path when the
+-- framework defers frame event registration during protected dispatch.
+BLU:RegisterEvent("PLAYER_LOGIN", BootstrapFromWorldEvent, INIT_EVENT_ID_PLAYER_LOGIN)
+BLU:RegisterEvent("PLAYER_ENTERING_WORLD", BootstrapFromWorldEvent, INIT_EVENT_ID_ENTERING_WORLD)
+
+if IsLoggedIn and IsLoggedIn() then
+	BLU:After(0, function()
+		BootstrapFromWorldEvent("deferred_login_state")
+	end)
+end

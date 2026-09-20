@@ -1,0 +1,839 @@
+--=====================================================================================
+-- BLU - interface/options/profiles.lua
+-- Profile management options panel
+--=====================================================================================
+
+local addonName = ...
+local BLU = _G["BLU"]
+
+local function GetRawDB()
+ if BLU and BLU.db and BLU.db._raw then return BLU.db._raw end
+ return _G.BLUForeverDB or {}
+end
+
+local Profiles = {}
+BLU.Modules = BLU.Modules or {}
+BLU.Modules["profiles"] = Profiles
+
+-- Prevent delete buttons from bleeding into other dropdowns (like Sound Channel)
+hooksecurefunc("UIDropDownMenu_AddButton", function(info, level)
+    local listFrame = _G["DropDownList"..(level or 1)]
+    if listFrame and listFrame.numButtons then
+        local button = _G[listFrame:GetName().."Button"..listFrame.numButtons]
+        if button and button.bluDeleteButton then button.bluDeleteButton:Hide() end
+    end
+end)
+
+local function GetProfileUIState()
+    BLU._profileUIState = BLU._profileUIState or {}
+    return BLU._profileUIState
+end
+
+local function GetCharacterProfileName()
+    local playerName = UnitName and UnitName("player") or "Player"
+    local realmName = GetRealmName and GetRealmName() or "Realm"
+    return tostring(playerName) .. "-" .. tostring(realmName)
+end
+
+local function GetActiveProfileName()
+ if BLU and BLU.db and BLU.db.GetActiveProfile then
+ return BLU.db:GetActiveProfile()
+ end
+
+ local raw = GetRawDB()
+ if raw.activeProfile then
+ return raw.activeProfile
+ end
+
+ return nil
+end
+
+local function RefreshProfileUI(selectedProfile)
+    local uiState = GetProfileUIState()
+    if selectedProfile and selectedProfile ~= "" then
+        uiState.selectedProfile = selectedProfile
+    end
+
+    if uiState.panel and uiState.panel.Refresh then
+        local ok = pcall(uiState.panel.Refresh, uiState.panel)
+        if ok then
+            return
+        end
+    end
+
+    if BLU.RefreshProfilesUI then
+        BLU:RefreshProfilesUI()
+    end
+end
+
+local function RefreshProfileUIDeferred(selectedProfile)
+    C_Timer.After(0.05, function()
+        RefreshProfileUI(selectedProfile)
+    end)
+end
+
+local function GetPopupEditBox(self)
+    if not self then
+        return nil
+    end
+
+    if self.editBox then
+        return self.editBox
+    end
+
+    local namedEditBox = self.GetName and _G[self:GetName() .. "EditBox"]
+    if namedEditBox then
+        self.editBox = namedEditBox
+        return namedEditBox
+    end
+
+    return nil
+end
+
+local function ConfigurePopupEditBox(self)
+    local editBox = GetPopupEditBox(self)
+    if not self or not editBox then
+        return
+    end
+
+    editBox:SetAutoFocus(false)
+    editBox:SetScript("OnEnterPressed", function(activeEditBox)
+        local popup = activeEditBox:GetParent()
+        if popup and popup.button1 and popup.button1:IsShown() and popup.button1:IsEnabled() then
+            popup.button1:Click()
+        end
+    end)
+end
+
+local function PopupEditBoxAccept(self)
+    if not self then
+        return
+    end
+
+    local popup = self:GetParent()
+    if popup and popup.button1 and popup.button1:IsShown() and popup.button1:IsEnabled() then
+        popup.button1:Click()
+    end
+end
+
+local function PositionPopup(self)
+    if not self then
+        return
+    end
+
+    self:ClearAllPoints()
+    self:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+end
+
+local function GetSuggestedProfileCopyName(profileName)
+    local sourceName = tostring(profileName or GetActiveProfileName() or "Profile")
+    local normalizedBase = sourceName:gsub("%s+Copy%s*%d*$", "")
+    if normalizedBase == "" then
+        normalizedBase = sourceName
+    end
+
+    local baseName = normalizedBase .. " Copy"
+    local candidate = baseName
+    local suffix = 2
+
+    while GetRawDB().profiles and GetRawDB().profiles[candidate] do
+        candidate = baseName .. " " .. tostring(suffix)
+        suffix = suffix + 1
+    end
+
+    return candidate
+end
+
+local function DeepCopyTable(value)
+    local RGX = _G.RGXFramework
+    if RGX then return RGX:DeepCopy(value) end
+    -- Fallback: shallow copy only (should not reach here with RequiredDeps)
+    if type(value) ~= "table" then return value end
+    local copy = {}
+    for k, v in pairs(value) do copy[k] = v end
+    return copy
+end
+
+local function ApplyTable(target, source)
+    if type(target) ~= "table" or type(source) ~= "table" then
+        return
+    end
+
+    for key, value in pairs(source) do
+        if type(value) == "table" then
+            target[key] = target[key] or {}
+            ApplyTable(target[key], value)
+        else
+            target[key] = value
+        end
+    end
+end
+
+local function ApplyPresetToProfile(profileName, presetSettings)
+ if type(profileName) ~= "string" or profileName == "" then
+ return false, "Select a profile first."
+ end
+
+ local raw = GetRawDB()
+ raw.profiles = raw.profiles or {}
+ raw.profiles[profileName] = raw.profiles[profileName] or {}
+
+ local targetProfile = raw.profiles[profileName]
+ local defaults = BLU.Modules and BLU.Modules.config and BLU.Modules.config.defaults and BLU.Modules.config.defaults.profile
+
+ for k in pairs(targetProfile) do
+ if k ~= "currentProfile" then
+ targetProfile[k] = nil
+ end
+ end
+
+ if defaults then
+ ApplyTable(targetProfile, DeepCopyTable(defaults))
+ end
+ ApplyTable(targetProfile, DeepCopyTable(presetSettings or {}))
+ targetProfile.currentProfile = profileName
+
+ if BLU and raw.activeProfile == profileName then
+ if BLU.Modules and BLU.Modules.config and BLU.Modules.config.ApplySettings then
+ BLU.Modules.config:ApplySettings()
+ end
+ if BLU.InvalidateAllTabs then
+ BLU:InvalidateAllTabs()
+        end
+        if BLU.RefreshOptions then
+            BLU:RefreshOptions()
+        end
+    end
+
+    return true
+end
+
+local PROFILE_PRESETS = {
+    {
+        name = "donniedice's Preset",
+        description = "donniedice's favorite sound selections and options for BLU.",
+        settings = {
+            -- System & Logic
+            enabled               = true,
+            debugMode             = false,
+            showWelcomeMessage    = true,
+            muteInInstances       = false,
+            muteInCombat          = false,
+            queueSounds           = true,
+            maxQueueSize          = 2,
+            soundChannel          = "Master",
+            soundVolume           = 100,
+            randomSoundVariations = true,
+            -- Sound Selections from savedvars-BLU.lua
+            selectedSounds = {
+                levelup                 = "kingdom_hearts_3",
+                achievement             = "everquest",
+                questaccept             = "kirby_2",
+                questcomplete           = "warcraft_3_2",
+                questturnin             = "kirby_1",
+                reputation              = "maplestory",
+                honorrank               = "modern_warfare_2",
+                renownrank              = "fly_for_fun",
+                tradingpost             = "final_fantasy",
+                delvecompanion          = "warcraft_3",
+                delvelifelost           = "elden_ring_6",
+                delvelifegained         = "super_mario_bros_3",
+                battlepet               = "pokemon",
+                petcapture              = "spyro_the_dragon",
+                housingleveledup        = "legend_of_zelda",
+                housingxpgained         = "None",
+                housingrewardsreceived  = "None",
+                housingdecorcollected   = "None",
+                achievementprogress     = "None",
+                questprogress           = "None",
+            },
+            -- Using the 3-file variant system (medium default)
+            soundVolumes = {
+                levelup = "medium", achievement = "medium", questaccept = "medium", questcomplete = "medium",
+                questturnin = "medium", reputation = "medium", honorrank = "medium", renownrank = "medium",
+                tradingpost = "medium", delvecompanion = "medium", battlepet = "medium", petcapture = "medium",
+                housingleveledup = "medium", delvelifegained = "medium", delvelifelost = "medium",
+            },
+        },
+    },
+    {
+        name = "Future Preset 1",
+        description = "Placeholder for a future custom profile configuration.",
+        settings = {},
+    },
+    {
+        name = "Future Preset 2",
+        description = "Placeholder for a future custom profile configuration.",
+        settings = {},
+    },
+    {
+        name = "Future Preset 3",
+        description = "Placeholder for a future custom profile configuration.",
+        settings = {},
+    },
+    {
+        name = "Future Preset 4",
+        description = "Placeholder for a future custom profile configuration.",
+        settings = {},
+    },
+    {
+        name = "Future Preset 5",
+        description = "Placeholder for a future custom profile configuration.",
+        settings = {},
+    },
+}
+
+local function GetOrderedProfiles()
+    local profiles = {}
+    local source = GetRawDB().profiles or {}
+
+    for profileName in pairs(source) do
+        profiles[#profiles + 1] = profileName
+    end
+
+    table.sort(profiles, function(a, b)
+        -- Default is always pinned to the top
+        if a == "Default" and b ~= "Default" then return true end
+        if b == "Default" and a ~= "Default" then return false end
+        -- Active profile is next
+        local active = GetActiveProfileName()
+        if a == active and b ~= active then return true end
+        if b == active and a ~= active then return false end
+        -- Remaining profiles alphabetically
+        return tostring(a):lower() < tostring(b):lower()
+    end)
+
+    return profiles
+end
+
+local function EnsurePopupConfig(targetPanel)
+    StaticPopupDialogs["BLU_PROFILE_CREATE"] = {
+        text = "Create a new BLU profile",
+        subText = "Enter a unique profile name.",
+        button1 = "Create",
+        button2 = "Cancel",
+        enterClicksFirstButton = true,
+        EditBoxOnEnterPressed = PopupEditBoxAccept,
+        hasEditBox = true,
+        maxLetters = 48,
+        editBoxWidth = 260,
+        OnShow = function(self)
+            PositionPopup(self)
+            local editBox = GetPopupEditBox(self)
+            if editBox then
+                editBox:SetText("")
+                ConfigurePopupEditBox(self)
+                editBox:SetFocus()
+            end
+        end,
+        OnAccept = function(self)
+            local editBox = GetPopupEditBox(self)
+            local profileName = (editBox and editBox:GetText() or ""):gsub("^%s+", ""):gsub("%s+$", "")
+
+            -- If no name entered, default to character-server name
+            if profileName == "" then
+                local charName = GetCharacterProfileName()
+                -- If that name already exists, append a suffix to keep it unique
+                if GetRawDB().profiles and GetRawDB().profiles[charName] then
+                    local suffix = 2
+                    while GetRawDB().profiles[charName .. " " .. suffix] do
+                        suffix = suffix + 1
+                    end
+                    profileName = charName .. " " .. suffix
+                else
+                    profileName = charName
+                end
+            end
+
+            if profileName == "Default" then
+                BLU:Print("'Default' is a reserved name. Please choose a different name.")
+                return
+            end
+
+            local raw = GetRawDB()
+ if raw.profiles and raw.profiles[profileName] then
+                BLU:Print("Profile already exists: " .. tostring(profileName))
+                return
+            end
+
+            if BLU.CreateProfile and BLU:CreateProfile(profileName) then
+                BLU:PrintDebug("[Options/Profiles] Created profile: " .. tostring(profileName))
+                RefreshProfileUIDeferred(profileName)
+            else
+                BLU:Print("Failed to create profile: " .. tostring(profileName))
+            end
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+
+    StaticPopupDialogs["BLU_PROFILE_RENAME"] = {
+        text = "Rename the selected BLU profile",
+        subText = "Enter a new profile name.",
+        button1 = "Rename",
+        button2 = "Cancel",
+        enterClicksFirstButton = true,
+        EditBoxOnEnterPressed = PopupEditBoxAccept,
+        hasEditBox = true,
+        maxLetters = 48,
+        editBoxWidth = 260,
+        OnShow = function(self, data)
+            PositionPopup(self)
+            local editBox = GetPopupEditBox(self)
+            if editBox then
+                editBox:SetText(data or "")
+                ConfigurePopupEditBox(self)
+                editBox:HighlightText()
+                editBox:SetFocus()
+            end
+        end,
+        OnAccept = function(self, data)
+            local oldName = data
+            local editBox = GetPopupEditBox(self)
+            local newName = (editBox and editBox:GetText() or ""):gsub("^%s+", ""):gsub("%s+$", "")
+
+            if not oldName or oldName == "" or newName == "" then
+                BLU:Print("Select a profile and enter a new name.")
+                return
+            end
+
+            if oldName == "Default" then
+                BLU:Print("'Default' is a permanent profile and cannot be renamed.")
+                return
+            end
+
+            if newName == "Default" then
+                BLU:Print("'Default' is a reserved name. Please choose a different name.")
+                return
+            end
+
+            if GetRawDB().profiles and GetRawDB().profiles[newName] then
+                BLU:Print("Profile already exists: " .. tostring(newName))
+                return
+            end
+
+            if BLU.RenameProfile and BLU:RenameProfile(oldName, newName) then
+                BLU:PrintDebug("[Options/Profiles] Renamed profile: " .. tostring(oldName) .. " → " .. tostring(newName))
+                RefreshProfileUIDeferred(newName)
+            else
+                BLU:Print("Failed to rename profile: " .. tostring(oldName))
+            end
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+
+    StaticPopupDialogs["BLU_PROFILE_DELETE"] = {
+        text = "Delete the selected BLU profile?",
+        subText = "This removes the saved profile data.",
+        button1 = "Delete",
+        button2 = "Cancel",
+        OnAccept = function(_, data)
+            if not data or data == "" then
+                BLU:Print("Select a profile first.")
+                return
+            end
+
+            if data == "Default" then
+                BLU:Print("Default cannot be deleted.")
+                return
+            end
+
+            if BLU.DeleteProfile and BLU:DeleteProfile(data) then
+                BLU:PrintDebug("[Options/Profiles] Deleted profile: " .. tostring(data))
+                RefreshProfileUI(GetActiveProfileName() or "Default")
+            else
+                BLU:Print("Failed to delete profile: " .. tostring(data))
+            end
+        end,
+        OnShow = function(self)
+            PositionPopup(self)
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+
+    StaticPopupDialogs["BLU_PROFILE_APPLY_PRESET"] = {
+        text = "Apply preset to \"%s\"?",
+        subText = "This will overwrite all settings on the selected profile.",
+        button1 = "Apply",
+        button2 = "Cancel",
+        OnAccept = function(_, data)
+            if not data or not data.profileName or not data.preset then
+                BLU:Print("[Profiles] Preset apply: missing data.")
+                return
+            end
+            BLU:Print("[Profiles] Applying preset '" .. tostring(data.preset.name) .. "' to profile: '" .. tostring(data.profileName) .. "' (active: '" .. tostring(GetActiveProfileName()) .. "')")
+            local ok, err = ApplyPresetToProfile(data.profileName, data.preset.settings)
+            if ok then
+                BLU:Print("[Profiles] Preset applied successfully.")
+            else
+                BLU:Print("[Profiles] Preset apply failed: " .. tostring(err))
+            end
+            RefreshProfileUI(data.profileName)
+        end,
+        OnShow = function(self)
+            PositionPopup(self)
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+
+    StaticPopupDialogs["BLU_PROFILE_RESET"] = {
+        text = "Reset the active BLU profile?",
+        subText = "This restores the current profile to defaults.",
+        button1 = "Reset",
+        button2 = "Cancel",
+        OnAccept = function()
+            local activeProfile = GetActiveProfileName() or "Default"
+            ApplyPresetToProfile(activeProfile, {})
+            BLU:PrintDebug("[Options/Profiles] Reset profile: " .. tostring(activeProfile))
+            RefreshProfileUI(activeProfile)
+        end,
+        OnShow = function(self)
+            PositionPopup(self)
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+end
+
+function BLU.CreateProfilesPanel(panel)
+    BLU:PrintDebug("[Options/Profiles] Creating Profiles panel")
+
+    for _, child in ipairs({panel:GetChildren()}) do
+        child:Hide()
+        child:SetParent(nil)
+    end
+
+    panel.profileState = GetProfileUIState()
+    panel.profileState.panel = panel
+    panel.profileState.selectedProfile = panel.profileState.selectedProfile or GetActiveProfileName() or "Default"
+
+    EnsurePopupConfig(panel)
+
+    local content = CreateFrame("Frame", nil, panel)
+    content:SetPoint("TOPLEFT", 1, -8)
+    content:SetPoint("BOTTOMRIGHT", -7, 8)
+
+    -- Main profile section: saved profiles, current profile, and actions are combined
+    local col1X = 16
+    local col2X = 215
+    local col3X = 492
+    local colGap  = 8
+
+    local mainSection = BLU.Modules.design:CreateSection(content, "Profiles", "Interface\\Icons\\Ability_Marksmanship")
+    mainSection:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
+    mainSection:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, 0)
+    mainSection:SetHeight(175)
+
+    -- Highlight frame for Active Profile info
+    local activeHighlight = CreateFrame("Frame", nil, mainSection.content, "BackdropTemplate")
+    activeHighlight:SetPoint("TOPLEFT", 8, -8)
+    activeHighlight:SetPoint("BOTTOMLEFT", 8, 8)
+    activeHighlight:SetWidth(col2X - 24)
+    activeHighlight:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
+    activeHighlight:SetBackdropColor(0.1, 0.12, 0.16, 0.6)
+    activeHighlight:SetBackdropBorderColor(0.2, 0.3, 0.4, 0.5)
+
+    local profileDropdownLabel = mainSection.content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    profileDropdownLabel:SetPoint("TOPLEFT", col2X, -16)
+    profileDropdownLabel:SetText("|cff05dffaProfile|r")
+
+    local profileDropdown = CreateFrame("Frame", "BLUProfilesDropdown", mainSection.content, "UIDropDownMenuTemplate")
+    profileDropdown:SetPoint("TOPLEFT", profileDropdownLabel, "BOTTOMLEFT", -15, -4)
+    UIDropDownMenu_SetWidth(profileDropdown, 220)
+    profileDropdown.xOffset = 18
+
+    local profileCount = mainSection.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    profileCount:SetPoint("TOPLEFT", profileDropdown, "BOTTOMLEFT", 20, -4)
+    profileCount:SetPoint("RIGHT", mainSection.content, "RIGHT", -10, 0)
+    profileCount:SetJustifyH("LEFT")
+    profileCount:SetTextColor(0.72, 0.72, 0.72)
+
+    local currentProfileLabel = activeHighlight:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    currentProfileLabel:SetPoint("TOPLEFT", activeHighlight, "TOPLEFT", 12, -12)
+    currentProfileLabel:SetText("Active")
+
+    local currentProfileValue = activeHighlight:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    currentProfileValue:SetPoint("TOPLEFT", currentProfileLabel, "BOTTOMLEFT", 0, -2)
+    currentProfileValue:SetPoint("RIGHT", activeHighlight, "RIGHT", -10, 0)
+    currentProfileValue:SetJustifyH("LEFT")
+    currentProfileValue:SetJustifyV("TOP")
+    currentProfileValue:SetWordWrap(true)
+
+    local characterProfileLabel = activeHighlight:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    characterProfileLabel:SetPoint("TOPLEFT", currentProfileValue, "BOTTOMLEFT", 0, -10)
+    characterProfileLabel:SetPoint("RIGHT", activeHighlight, "RIGHT", -10, 0)
+    characterProfileLabel:SetTextColor(0.76, 0.76, 0.76)
+    characterProfileLabel:SetJustifyH("LEFT")
+
+    local actionButtonWidth = 84
+    local d = BLU.Modules.design
+
+    local createButton = d:CreateActionButton(mainSection.content, "Create", actionButtonWidth, 22,
+        "Create Profile", "Create a new empty profile with a unique name.")
+    createButton:SetPoint("TOPLEFT", mainSection.content, "TOPLEFT", col3X, -8)
+    createButton:SetScript("OnClick", function()
+        StaticPopup_Show("BLU_PROFILE_CREATE")
+    end)
+
+    local renameButton = d:CreateActionButton(mainSection.content, "Rename", actionButtonWidth, 22,
+        "Rename Profile", "Rename the currently selected profile.")
+    renameButton:SetPoint("TOPLEFT", createButton, "BOTTOMLEFT", 0, -6)
+    renameButton:SetScript("OnClick", function()
+        local selected = panel.profileState.selectedProfile
+        if not selected or selected == "" then return end
+        StaticPopup_Show("BLU_PROFILE_RENAME", nil, nil, selected)
+    end)
+
+    local resetButton = d:CreateActionButton(mainSection.content, "Reset", actionButtonWidth, 22,
+        "Reset Profile", "Restores the active profile to default settings.")
+    resetButton:SetPoint("TOPLEFT", renameButton, "BOTTOMLEFT", 0, -6)
+    resetButton:SetScript("OnClick", function()
+        StaticPopup_Show("BLU_PROFILE_RESET")
+    end)
+
+    local copyActiveButton = d:CreateActionButton(mainSection.content, "Copy", actionButtonWidth, 22,
+        "Duplicate Active Profile", "Creates a copy named 'Copy', then 'Copy 2', 'Copy 3', and so on.")
+    copyActiveButton:SetPoint("TOPLEFT", resetButton, "BOTTOMLEFT", 0, -6)
+    copyActiveButton:SetScript("OnClick", function()
+        local sourceProfileName = GetActiveProfileName() or "Default"
+        local newProfileName = GetSuggestedProfileCopyName()
+
+        if BLU.CopyProfile and BLU:CopyProfile(sourceProfileName, newProfileName) then
+            BLU:PrintDebug("[Options/Profiles] Copied profile: " .. tostring(sourceProfileName) .. " -> " .. tostring(newProfileName))
+            RefreshProfileUI(newProfileName)
+        else
+            BLU:Print("Failed to copy profile: " .. tostring(sourceProfileName))
+        end
+    end)
+
+    -- ── Presets section: full width bottom section ───────────────────────────
+    local presetsSection = BLU.Modules.design:CreateSection(content, "Presets", "Interface\\Icons\\INV_Inscription_Scroll")
+    presetsSection:SetPoint("TOPLEFT", mainSection, "BOTTOMLEFT", 0, -4)
+    presetsSection:SetPoint("TOPRIGHT", mainSection, "BOTTOMRIGHT", 0, -4)
+    presetsSection:SetPoint("BOTTOMLEFT", content, "BOTTOMLEFT", 0, 4)
+    presetsSection:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", 0, 4)
+
+    local presetColWidth = 180
+    for presetIndex, preset in ipairs(PROFILE_PRESETS) do
+        local col = (presetIndex - 1) % 3
+        local row = math.floor((presetIndex - 1) / 3)
+        local presetButton = BLU.Modules.design:CreateActionButton(
+            presetsSection.content, preset.name, presetColWidth, 22,
+            preset.name, preset.description)
+        presetButton:SetPoint("TOPLEFT", 12 + (col * (presetColWidth + 12)), -12 - (row * 30))
+        presetButton:SetScript("OnClick", function()
+            local activeProfileName = GetActiveProfileName() or "Default"
+            StaticPopup_Show("BLU_PROFILE_APPLY_PRESET", activeProfileName, nil, { profileName = activeProfileName, preset = preset })
+        end)
+    end
+
+    -- ── DROPDOWN INIT ────────────────────────────────────────────────────────
+    local function profileDropdown_OnInitialize(self, level, menuList)
+        local RGX = _G.RGXFramework
+        local Drops = RGX:GetDropdowns()
+        local function getDropDownListFrame(levelToUse)
+            return Drops:GetListFrame(levelToUse)
+        end
+
+        local function resetDropDownListFrame(levelToUse)
+            Drops:HideInlineButtons(levelToUse, "bluDeleteButton")
+        end
+
+        local BASE_MIN_WIDTH = math.floor(profileDropdown:GetWidth() or 200)
+        if BASE_MIN_WIDTH < 100 then BASE_MIN_WIDTH = 200 end
+
+        local function getMinWidthForLevel(levelToUse)
+            if (levelToUse or 1) <= 1 then
+                return math.max(140, math.floor(BASE_MIN_WIDTH * 0.6))
+            end
+
+            return math.max(120, math.floor(BASE_MIN_WIDTH * 0.55))
+        end
+
+        local function getLeftInsetForLevel(levelToUse)
+            if (levelToUse or 1) >= 1 then
+                return 24
+            end
+
+            return 8
+        end
+
+        local function forceListFrameWidth(levelToUse)
+            Drops:ForceWidth(levelToUse, getMinWidthForLevel(levelToUse), getLeftInsetForLevel(levelToUse), {
+                inlineKeys = {"bluDeleteButton"},
+                compactRight = false,
+            })
+        end
+
+        level = level or 1
+        local activeProfileName = GetActiveProfileName() or "Default"
+        if level == 1 then
+            resetDropDownListFrame(level)
+
+            -- Hide stale delete buttons from previous open before adding new buttons
+            local listFrame = getDropDownListFrame(level)
+            if listFrame then
+                local maxButtons = UIDROPDOWNMENU_MAXBUTTONS or 32
+                for i = 1, maxButtons do
+                    local button = _G[listFrame:GetName() .. "Button" .. i]
+                    if button and button.bluDeleteButton then
+                        button.bluDeleteButton:Hide()
+                    end
+                end
+            end
+
+            for _, profileName in ipairs(GetOrderedProfiles()) do
+                local info = UIDropDownMenu_CreateInfo()
+                if profileName == activeProfileName then
+                    info.text = "|cff05dffa" .. profileName .. "|r"
+                else
+                    info.text = profileName
+                end
+                info.value        = profileName
+                info.notCheckable = true
+                info.func = function()
+                    panel.profileState.selectedProfile = profileName
+                    if BLU.LoadProfile then BLU:LoadProfile(profileName) end
+                    if panel.Refresh then panel:Refresh() end
+                    CloseDropDownMenus()
+                end
+                UIDropDownMenu_AddButton(info, level)
+
+                -- Attach inline delete button to non-Default profiles
+                -- Added safety check: only show if the open menu is the BLU Profiles dropdown
+                local openMenu = UIDROPDOWNMENU_OPEN_MENU
+                local isProfilesMenu = openMenu and openMenu:GetName() == "BLUProfilesDropdown"
+
+                if profileName ~= "Default" and isProfilesMenu then
+                    local lf = getDropDownListFrame(level)
+                    if lf and lf.numButtons then
+                        local button = _G[lf:GetName() .. "Button" .. lf.numButtons]
+                        if button then
+                            local deleteButton = button.bluDeleteButton
+                            if not deleteButton then
+                                deleteButton = CreateFrame("Button", nil, button, "BackdropTemplate")
+                                deleteButton:SetSize(18, 16)
+                                deleteButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
+                                deleteButton:SetBackdropColor(0.15, 0.05, 0.05, 0.95)
+                                deleteButton:SetBackdropBorderColor(0.3, 0.1, 0.1, 1)
+                                deleteButton:RegisterForClicks("LeftButtonUp")
+                                deleteButton:SetScript("OnClick", function(btn)
+                                    if btn.profileName then
+                                        StaticPopup_Show("BLU_PROFILE_DELETE", btn.profileName, nil, btn.profileName)
+                                        CloseDropDownMenus()
+                                    end
+                                end)
+                                deleteButton:SetScript("OnEnter", function(btn)
+                                    btn:SetBackdropColor(0.2, 0.07, 0.07, 1)
+                                    GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+                                    GameTooltip:SetText("Delete Profile")
+                                    GameTooltip:AddLine(btn.profileName or "", 0.82, 0.82, 0.82, true)
+                                    GameTooltip:Show()
+                                end)
+                                deleteButton:SetScript("OnLeave", function(btn)
+                                    btn:SetBackdropColor(0.15, 0.05, 0.05, 0.95)
+                                    GameTooltip:Hide()
+                                end)
+                                local lbl = deleteButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                                lbl:SetPoint("CENTER", 0, 0)
+                                lbl:SetText("x")
+                                lbl:SetTextColor(1, 0.3, 0.3)
+                                button.bluDeleteButton = deleteButton
+                            end
+                            deleteButton.profileName = profileName
+                            deleteButton:Show()
+                        end
+                    end
+                end
+            end
+
+            forceListFrameWidth(level)
+        end
+    end
+
+    UIDropDownMenu_Initialize(profileDropdown, profileDropdown_OnInitialize)
+
+    -- ── REFRESH ──────────────────────────────────────────────────────────────
+    function panel:Refresh()
+        local activeProfileName   = GetActiveProfileName() or "Default"
+        local selectedProfile     = self.profileState.selectedProfile
+        local profileNames        = GetOrderedProfiles()
+        local characterProfileName = GetCharacterProfileName()
+
+        if not selectedProfile or not (GetRawDB().profiles and GetRawDB().profiles[selectedProfile]) then
+            selectedProfile = activeProfileName
+        end
+        self.profileState.selectedProfile = selectedProfile
+
+        -- Re-initialize the dropdown to rebuild the list with updated names
+        UIDropDownMenu_Initialize(profileDropdown, profileDropdown_OnInitialize)
+
+        UIDropDownMenu_SetText(profileDropdown, tostring(selectedProfile))
+        currentProfileValue:SetText("|cff05dffa" .. tostring(activeProfileName) .. "|r")
+        characterProfileLabel:SetText("Character: |cff95a5a6" .. tostring(characterProfileName) .. "|r")
+        profileCount:SetText("Saved: |cffffd700" .. tostring(#profileNames) .. "|r")
+    end
+
+    panel:SetScript("OnShow", function(self)
+        if self.Refresh then
+            self:Refresh()
+        end
+    end)
+
+    panel:Refresh()
+end
+
+function BLU.RefreshProfilesUI()
+    BLU:PrintDebug("[Options/Profiles] RefreshProfilesUI called")
+    if not BLU.OptionsPanel or not BLU.OptionsPanel.contents then
+        return false
+    end
+
+    local profilesContent = nil
+    if type(BLU.OptionsTabs) == "table" then
+        for index, tabInfo in ipairs(BLU.OptionsTabs) do
+            if tabInfo and (tabInfo.text == "Profiles" or tabInfo.create == BLU.CreateProfilesPanel) then
+                profilesContent = BLU.OptionsPanel.contents[index]
+                break
+            end
+        end
+    end
+
+    if not profilesContent then
+        BLU:PrintDebug("[Options/Profiles] RefreshProfilesUI could not resolve the Profiles tab content")
+        return false
+    end
+
+    if not profilesContent:IsShown() then
+        return false
+    end
+
+    local ok, err = pcall(BLU.CreateProfilesPanel, profilesContent)
+    if not ok then
+        BLU:PrintDebug("[Options/Profiles] Failed to rebuild Profiles tab: " .. tostring(err))
+        return false
+    end
+
+    return true
+end
+
+function Profiles:Init()
+    BLU:PrintDebug("[Profiles] Profiles panel module initialized")
+end
+
+if BLU.RegisterModule then
+    BLU:RegisterModule(Profiles, "profiles", "Profiles Panel")
+end

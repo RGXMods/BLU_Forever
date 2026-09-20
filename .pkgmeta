@@ -1,0 +1,11 @@
+package-as: BLU
+manual-changelog: docs/CHANGES.md
+ignore:
+  - CLAUDE.md
+  - .claude
+  - .claude-code-router
+  - docs/changelogs
+  - docs/description.html
+  - images
+  - tests
+  - .github

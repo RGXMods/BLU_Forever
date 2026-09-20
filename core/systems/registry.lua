@@ -1,0 +1,718 @@
+--=====================================================================================
+-- BLU Sound Registry Module
+-- Manages all sound registrations and playback
+--=====================================================================================
+
+local addonName = ...
+local BLU = _G["BLU"]
+
+local SoundRegistry = {}
+
+local defaultBluSounds = {
+    levelup = "level_default",
+    quest = "quest_default",
+    questcomplete = "quest_complete_default",
+    questaccept = "quest_accept_default",
+    questturnin = "quest_turnin_default",
+    reputation = "rep_default",
+    honorrank = "honor_default",
+}
+
+local moduleCategoryMap = {
+    questaccept = "quest",
+    questcomplete = "quest",
+    questturnin = "quest",
+    questprogress = "quest",
+}
+
+local CATEGORY_SOUND_COOLDOWN_SECONDS = 0.20
+local GLOBAL_SOUND_COOLDOWN_SECONDS = 0.05
+
+BLU.Modules["registry"] = SoundRegistry
+BLU.SoundRegistry = SoundRegistry
+BLU.Registry = SoundRegistry
+
+-- Sound storage with caching
+SoundRegistry.sounds = {}
+SoundRegistry.categories = {}
+SoundRegistry.soundCache = {} -- Performance cache
+SoundRegistry.lastCacheUpdate = 0
+SoundRegistry.uiSoundCache = {} -- Cache for UI dropdowns
+SoundRegistry.lastCategoryPlayAt = {}
+SoundRegistry.lastAnyPlayAt = 0
+SoundRegistry.previewState = { soundId = nil, handle = nil, mode = nil, key = nil }
+SoundRegistry.previewListeners = {}
+
+-- Initialize
+function SoundRegistry:Init()
+    -- Register core API functions
+    BLU.RegisterSound = function(_, soundId, soundData)
+        return self:RegisterSound(soundId, soundData)
+    end
+    
+    BLU.UnregisterSound = function(_, soundId)
+        return self:UnregisterSound(soundId)
+    end
+    
+    BLU.GetSound = function(_, soundId)
+        return self:GetSound(soundId)
+    end
+    
+    BLU.PlaySound = function(_, soundId, volume)
+        return self:PlaySound(soundId, volume)
+    end
+    
+    BLU.PlayCategorySound = function(_, category, forceSound)
+        return self:PlayCategorySound(category, forceSound)
+    end
+    
+    BLU.RegisterSoundPack = function(_, packId, packName, sounds)
+        return self:RegisterSoundPack(packId, packName, sounds)
+    end
+    
+    BLU.GetRegisteredPacks = function()
+        return self:GetRegisteredPacks()
+    end
+
+    BLU.GetSoundsGroupedForUI = function(_, targetEvent)
+        return self:GetSoundsGroupedForUI(targetEvent)
+    end
+    
+    BLU:PrintDebug(BLU:Loc("MODULE_LOADED", "SoundRegistry"))
+end
+
+-- Register a sound
+function SoundRegistry:RegisterSound(soundId, soundData)
+    if not soundId or not soundData then
+        BLU:PrintError("Invalid sound registration")
+        return false
+    end
+    BLU:PrintDebug(string.format("SoundRegistry:RegisterSound: id='%s', name='%s', pack='%s'", soundId, soundData.name or "nil", soundData.packName or "nil"))
+    
+	if soundData.hasVolumeVariants == nil and type(soundData.file) == "string" then
+		soundData.hasVolumeVariants = (soundData.file:match("_med%.ogg$") or soundData.file:match("_low%.ogg$") or soundData.file:match("_high%.ogg$")) ~= nil
+	end
+
+    -- Store sound
+    self.sounds[soundId] = soundData
+    
+    -- Track category
+    if soundData.category then
+        self.categories[soundData.category] = self.categories[soundData.category] or {}
+        self.categories[soundData.category][soundId] = true
+    end
+    
+    -- Invalidate UI cache
+    self.uiSoundCache = {}
+
+    BLU:PrintDebug("Registered sound: " .. soundId)
+    return true
+end
+
+-- Unregister a sound
+function SoundRegistry:UnregisterSound(soundId)
+    local sound = self.sounds[soundId]
+    if not sound then return end
+    
+    -- Remove from category
+    if sound.category and self.categories[sound.category] then
+        self.categories[sound.category][soundId] = nil
+    end
+    
+    -- Remove sound
+    self.sounds[soundId] = nil
+
+    -- Invalidate UI cache
+    self.uiSoundCache = {}
+end
+
+-- Get sound data
+function SoundRegistry:GetSound(soundId)
+    BLU:PrintDebug("[Registry] GetSound called for '" .. tostring(soundId) .. "'")
+    return self.sounds[soundId]
+end
+
+function SoundRegistry:RegisterPreviewListener(callback)
+    if type(callback) ~= "function" then
+        return function() end
+    end
+
+    table.insert(self.previewListeners, callback)
+    return function()
+        for i = #self.previewListeners, 1, -1 do
+            if self.previewListeners[i] == callback then
+                table.remove(self.previewListeners, i)
+                break
+            end
+        end
+    end
+end
+
+function SoundRegistry:NotifyPreviewChanged()
+    for _, callback in ipairs(self.previewListeners) do
+        pcall(callback, self.previewState)
+    end
+end
+
+function SoundRegistry:IsPreviewPlaying(soundId, previewKey)
+    if not self.previewState or not self.previewState.soundId then
+        return false
+    end
+
+    if previewKey and self.previewState.key ~= previewKey then
+        return false
+    end
+
+    if soundId and self.previewState.soundId ~= soundId then
+        return false
+    end
+
+    return true
+end
+
+function SoundRegistry:StopPreview()
+    local state = self.previewState or {}
+
+    if state.handle and StopSound then
+        pcall(StopSound, state.handle)
+    end
+
+    self.previewState = { soundId = nil, handle = nil, mode = nil, key = nil }
+    self:NotifyPreviewChanged()
+end
+
+function SoundRegistry:PreviewSound(soundId, options)
+    options = options or {}
+    local previewKey = options.previewKey
+
+    if self:IsPreviewPlaying(soundId, previewKey) then
+        self:StopPreview()
+        return false, "stopped"
+    end
+
+    self:StopPreview()
+
+    local sound = self:GetSound(soundId)
+    if not sound then
+        return false, "missing"
+    end
+
+    local willPlay, handle = self:PlaySound(soundId, nil, options)
+    if willPlay then
+        self.previewState = {
+            soundId = soundId,
+            handle = handle,
+            mode = options.forceMusicPreview and "music-preview" or "sound",
+            key = previewKey,
+        }
+        self:NotifyPreviewChanged()
+        return true, "playing"
+    end
+
+    return false, "failed"
+end
+
+-- Get sounds by category
+function SoundRegistry:GetSoundsByCategory(category)
+    BLU:PrintDebug("[Registry] GetSoundsByCategory called for '" .. tostring(category) .. "'")
+    local sounds = {}
+    
+    if self.categories[category] then
+        for soundId in pairs(self.categories[category]) do
+            sounds[soundId] = self.sounds[soundId]
+        end
+    end
+    
+    return sounds
+end
+
+-- Get all sounds
+function SoundRegistry:GetAllSounds()
+    return self.sounds
+end
+
+local function ResolveChannelForPlayback(options)
+    options = options or {}
+
+    if type(options.channelOverride) == "string" and options.channelOverride ~= "" then
+        return options.channelOverride
+    end
+
+    local triggerId = options.triggerIdOverride
+    if BLU.db and BLU.db.combat and BLU.db.combat.soundChannels and triggerId then
+        local combatChannel = BLU.db.combat.soundChannels[triggerId]
+        if type(combatChannel) == "string" and combatChannel ~= "" then
+            return combatChannel
+        end
+    end
+
+    local category = options.categoryOverride
+    if BLU.db and BLU.db.soundChannels and category then
+        local categoryChannel = BLU.db.soundChannels[category]
+        if type(categoryChannel) == "string" and categoryChannel ~= "" then
+            return categoryChannel
+        end
+    end
+
+    if BLU.db and BLU.db.soundChannel then
+        return BLU.db.soundChannel
+    end
+
+    return "Master"
+end
+
+local function ResolveVolumeSetting(sound, options)
+    if not sound or not sound.hasVolumeVariants then
+        return nil
+    end
+
+    if options and options.volumeSettingOverride then
+        return options.volumeSettingOverride
+    end
+
+    local triggerId = options and options.triggerIdOverride
+    if BLU.db and BLU.db.combat and BLU.db.combat.soundVolumes and triggerId then
+        local triggerVolume = BLU.db.combat.soundVolumes[triggerId]
+        if triggerVolume then
+            return triggerVolume
+        end
+    end
+
+    local category = options and options.categoryOverride or sound.category
+    if BLU.db and BLU.db.soundVolumes and category and BLU.db.soundVolumes[category] then
+        return BLU.db.soundVolumes[category]
+    end
+
+    return "medium"
+end
+
+-- Register a sound pack
+function SoundRegistry:RegisterSoundPack(packId, packName, sounds)
+    if not packId or not sounds then
+        BLU:PrintError("Invalid sound pack registration")
+        return false
+    end
+    
+    BLU:PrintDebug("Registering sound pack: " .. packName)
+    
+    local registered = 0
+    for soundId, soundData in pairs(sounds) do
+        -- Add pack info to sound data
+        soundData.packId = packId
+        soundData.packName = packName
+        
+        -- Register the sound
+        if self:RegisterSound(soundId, soundData) then
+            registered = registered + 1
+        end
+    end
+    
+    BLU:PrintDebug(string.format("Registered %d sounds from pack: %s", registered, packName))
+    return true
+end
+
+-- Get registered sound packs
+function SoundRegistry:GetRegisteredPacks()
+    local packs = {}
+    local packMap = {}
+    
+    -- Collect unique packs from registered sounds
+    for soundId, soundData in pairs(self.sounds) do
+        BLU:PrintDebug(string.format("GetRegisteredPacks: Processing soundId=%s, packId=%s", soundId, soundData.packId))
+        if soundData.packId and not packMap[soundData.packId] then
+            packMap[soundData.packId] = true
+            table.insert(packs, {
+                id = soundData.packId,
+                name = soundData.packName or soundData.packId
+            })
+        end
+    end
+    
+    return packs
+end
+
+function SoundRegistry:GetSoundsGroupedForUI(targetEvent)
+    BLU:PrintDebug("[Registry] GetSoundsGroupedForUI called for '" .. tostring(targetEvent) .. "'")
+    if self.uiSoundCache[targetEvent] then
+        BLU:PrintDebug("[Registry] Returning cached UI sound hierarchy for '" .. tostring(targetEvent) .. "'")
+        return self.uiSoundCache[targetEvent]
+    end
+
+    local hierarchy = {
+        ["BLU WoW Defaults"] = {},
+        ["BLU Other Game Sounds"] = {},
+        ["User Custom Sounds"] = {},
+        ["Shared Media"] = {},
+    }
+
+    for soundId, soundData in pairs(self:GetAllSounds()) do
+        if soundData.source == "SharedMedia" then
+            local packId = soundData.packId or "Unidentified Pack"
+            hierarchy["Shared Media"][packId] = hierarchy["Shared Media"][packId] or {}
+            table.insert(hierarchy["Shared Media"][packId], {id = soundId, name = soundData.name})
+        elseif soundData.source == "UserCustom" then
+            table.insert(hierarchy["User Custom Sounds"], {id = soundId, name = soundData.name})
+        elseif soundData.category == targetEvent or soundData.category == "all" then
+            if soundData.source == "BLU" or soundData.source == "BLU Built-in" then
+                local packName = soundData.packName or "BLU Defaults"
+                if packName == "BLU Defaults" then
+                    table.insert(hierarchy["BLU WoW Defaults"], {id = soundId, name = soundData.name})
+                else
+                    hierarchy["BLU Other Game Sounds"][packName] = hierarchy["BLU Other Game Sounds"][packName] or {}
+                    table.insert(hierarchy["BLU Other Game Sounds"][packName], {id = soundId, name = soundData.name})
+                end
+            end
+        end
+    end
+
+    self.uiSoundCache[targetEvent] = hierarchy
+    BLU:PrintDebug("[Registry] Built UI sound hierarchy for '" .. tostring(targetEvent) .. "'")
+    return hierarchy
+end
+
+function SoundRegistry:GetAllPlayableSoundIds()
+    BLU:PrintDebug("[Registry] GetAllPlayableSoundIds called")
+    local grouped = {
+        self:GetSoundsGroupedForUI("levelup"),
+        self:GetSoundsGroupedForUI("achievement"),
+        self:GetSoundsGroupedForUI("achievementprogress"),
+        self:GetSoundsGroupedForUI("questaccept"),
+        self:GetSoundsGroupedForUI("questcomplete"),
+        self:GetSoundsGroupedForUI("questturnin"),
+        self:GetSoundsGroupedForUI("questprogress"),
+        self:GetSoundsGroupedForUI("reputation"),
+        self:GetSoundsGroupedForUI("battlepet"),
+        self:GetSoundsGroupedForUI("petcapture"),
+        self:GetSoundsGroupedForUI("honorrank"),
+        self:GetSoundsGroupedForUI("renownrank"),
+        self:GetSoundsGroupedForUI("tradingpost"),
+        self:GetSoundsGroupedForUI("delvecompanion"),
+        self:GetSoundsGroupedForUI("delvelifelost"),
+        self:GetSoundsGroupedForUI("delvelifegained"),
+        self:GetSoundsGroupedForUI("housingxpgained"),
+        self:GetSoundsGroupedForUI("housingleveledup"),
+        self:GetSoundsGroupedForUI("housingrewardsreceived"),
+        self:GetSoundsGroupedForUI("housingdecorcollected"),
+    }
+    local soundIds = {}
+    local seen = {}
+
+    local function addSoundId(soundId)
+        if soundId and not seen[soundId] then
+            seen[soundId] = true
+            table.insert(soundIds, soundId)
+        end
+    end
+
+    local function walk(node)
+        if type(node) ~= "table" then
+            return
+        end
+
+        if node.id then
+            addSoundId(node.id)
+            return
+        end
+
+        for _, value in pairs(node) do
+            walk(value)
+        end
+    end
+
+    for _, group in ipairs(grouped) do
+        walk(group)
+    end
+
+    for _, defaultSoundId in pairs(defaultBluSounds) do
+        addSoundId(defaultSoundId)
+    end
+
+    BLU:PrintDebug("[Registry] Collected " .. tostring(#soundIds) .. " playable sound ids")
+    return soundIds
+end
+
+-- Play a sound
+function SoundRegistry:PlaySound(soundId, volume, options)
+    BLU:PrintDebug("[Registry] PlaySound called for '" .. tostring(soundId) .. "'")
+    local sound = self.sounds[soundId]
+    if not sound then
+        BLU:PrintDebug("Sound not found: " .. tostring(soundId))
+        return false
+    end
+
+    options = options or {}
+    local resolvedVolume = tonumber(volume) or 1
+    BLU:PrintDebug("[Registry] PlaySound options categoryOverride='" .. tostring(options.categoryOverride) .. "', volumeOverride='" .. tostring(options.volumeSettingOverride) .. "'")
+    
+    local channel = ResolveChannelForPlayback(options)
+    
+    -- Play the sound based on type
+    local willPlay, handle
+    
+    if sound.soundKit then
+        BLU:PrintDebug("[Registry] Using soundKit playback for '" .. tostring(soundId) .. "'")
+        -- Use PlaySound for built-in WoW sounds
+        willPlay, handle = PlaySound(sound.soundKit, channel)
+    elseif sound.file then
+        BLU:PrintDebug("[Registry] Using file playback for '" .. tostring(soundId) .. "'")
+        local fileToPlay = sound.file
+        
+        if sound.hasVolumeVariants then
+            BLU:PrintDebug("[Registry] Sound has volume variants; resolving variant for category '" .. tostring(options.categoryOverride or sound.category) .. "'")
+            local category = options.categoryOverride or sound.category
+            local volumeSetting = ResolveVolumeSetting(sound, options) or "medium"
+
+            if volumeSetting == "none" then
+                BLU:PrintDebug("Sound muted for category: " .. category)
+                return false
+            end
+
+            local variant = "_med"
+            if volumeSetting == "low" then
+                variant = "_low"
+            elseif volumeSetting == "high" then
+                variant = "_high"
+            end
+            
+            -- Build the variant file path
+            local baseFile = sound.file:gsub("_high%.ogg$", ""):gsub("_med%.ogg$", ""):gsub("_low%.ogg$", ""):gsub("%.ogg$", "")
+            local variantFile = baseFile .. variant .. ".ogg"
+            
+            fileToPlay = variantFile
+            BLU:PrintDebug("Attempting to play sound: " .. fileToPlay)
+            
+            if options.stopMusic and StopMusic then
+                StopMusic()
+            end
+            willPlay, handle = PlaySoundFile(variantFile, channel)
+            
+            if not willPlay then
+                -- Fallback to base file if variant not found
+                BLU:PrintDebug("Failed to play variant, falling back to base file: " .. sound.file)
+                if options.stopMusic and StopMusic then
+                    StopMusic()
+                end
+                willPlay, handle = PlaySoundFile(sound.file, channel)
+            end
+        else
+            BLU:PrintDebug("[Registry] Sound has no volume variants; using direct file playback")
+            -- External sounds, SoundPaks, or user custom sounds should already
+            -- be normalized before they reach live playback.
+            if options.stopMusic and StopMusic then
+                StopMusic()
+            end
+            willPlay, handle = PlaySoundFile(sound.file, channel)
+        end
+    else
+        BLU:PrintError("Sound has no file or soundKit: " .. soundId)
+        return false
+    end
+    
+    if willPlay then
+        BLU:PrintDebug(string.format("Playing sound: %s (volume: %.2f, channel: %s)", soundId, resolvedVolume, channel))
+        
+        -- Show in chat if enabled
+        if BLU.db and BLU.db.debugMode then
+            BLU:Print(string.format("|cff00ff00Playing:|r %s", sound.name or soundId))
+        end
+        
+        -- Handle callbacks if provided
+        if sound.onPlay then
+            sound.onPlay(soundId, resolvedVolume)
+        end
+        
+        return true, handle, channel
+    else
+        BLU:PrintError("Failed to play sound: " .. soundId)
+        return false, nil, channel
+    end
+end
+
+-- Get all registered sounds
+function SoundRegistry:GetAllSounds()
+    return self.sounds
+end
+
+-- Play sound for a specific event category
+function SoundRegistry:PlayCategorySound(category, forceSound)
+    BLU:PrintDebug("[Registry] PlayCategorySound called for '" .. tostring(category) .. "' with forceSound='" .. tostring(forceSound) .. "'")
+    if BLU.db and BLU.db.enabled == false then
+        BLU:PrintDebug("BLU disabled, skipping category sound: " .. tostring(category))
+        return false
+    end
+
+    -- Check if muted in instances
+    if BLU.db and BLU.db.muteInInstances then
+        local inInstance, instanceType = IsInInstance()
+        if inInstance and (instanceType == "party" or instanceType == "raid" or instanceType == "arena" or instanceType == "pvp") then
+            BLU:PrintDebug("Sound muted in instance")
+            return false
+        end
+    end
+    
+    -- Check if muted in combat
+    if BLU.db and BLU.db.muteInCombat and InCombatLockdown() then
+        BLU:PrintDebug("Sound muted in combat")
+        return false
+    end
+    
+    -- Check if module is enabled
+    local moduleKey = moduleCategoryMap[category] or category
+    BLU:PrintDebug("[Registry] Resolved module key for category '" .. tostring(category) .. "' to '" .. tostring(moduleKey) .. "'")
+    if BLU.db and BLU.db.modules and BLU.db.modules[moduleKey] == false then
+        BLU:PrintDebug("Module disabled for category: " .. category)
+        return false
+    end
+
+    local now = GetTime and GetTime() or 0
+    local lastForCategory = self.lastCategoryPlayAt[category]
+    if lastForCategory and (now - lastForCategory) < CATEGORY_SOUND_COOLDOWN_SECONDS then
+        BLU:PrintDebug("Skipped duplicate sound in cooldown window for category: " .. category)
+        return false
+    end
+
+    if self.lastAnyPlayAt and (now - self.lastAnyPlayAt) < GLOBAL_SOUND_COOLDOWN_SECONDS then
+        BLU:PrintDebug("Skipped sound due to global cooldown for category: " .. category)
+        return false
+    end
+    
+    -- Get selected sound for category
+    local selectedSound = forceSound
+    if not selectedSound and BLU.db and BLU.db.selectedSounds then
+        selectedSound = BLU.db.selectedSounds[category]
+    end
+    
+    -- Default to "default" if nothing selected
+    if not selectedSound then
+        selectedSound = "default"
+    end
+    BLU:PrintDebug("[Registry] Selected sound for category '" .. tostring(category) .. "' is '" .. tostring(selectedSound) .. "'")
+
+    if selectedSound == "None" then
+        BLU:PrintDebug("Selected sound is None, skipping playback.")
+        return false
+    end
+
+    if selectedSound == "random" then
+        BLU:PrintDebug("[Registry] Random sound selection requested for '" .. tostring(category) .. "'")
+        local soundIds = self:GetAllPlayableSoundIds()
+        if #soundIds > 0 then
+            local randomIndex = math.random(1, #soundIds)
+            local randomSoundId = soundIds[randomIndex]
+            BLU:PrintDebug("[Registry] Randomly selected '" .. tostring(randomSoundId) .. "' for category '" .. tostring(category) .. "'")
+            local played = self:PlaySound(randomSoundId, nil, {
+                categoryOverride = category,
+                volumeSettingOverride = "medium",
+            })
+            if played then
+                self.lastCategoryPlayAt[category] = now
+                self.lastAnyPlayAt = now
+            end
+            return played
+        else
+            -- fallback to default if no sounds in category
+            selectedSound = "default"
+        end
+    end
+    
+    -- Handle different sound types
+    if selectedSound == "default" then
+        local soundId = defaultBluSounds[category]
+        BLU:PrintDebug("[Registry] Default sound lookup for category '" .. tostring(category) .. "' => '" .. tostring(soundId) .. "'")
+        if soundId then
+            local played = self:PlaySound(soundId, nil, { categoryOverride = category })
+            if played then
+                self.lastCategoryPlayAt[category] = now
+                self.lastAnyPlayAt = now
+            end
+            return played
+        end
+        
+    elseif selectedSound:match("^external:") then
+        BLU:PrintDebug("[Registry] External sound playback for '" .. tostring(selectedSound) .. "'")
+        local externalName = selectedSound:gsub("^external:", "")
+        if BLU.PlayExternalSound then
+            local played = BLU:PlayExternalSound(externalName)
+            if played then
+                self.lastCategoryPlayAt[category] = now
+                self.lastAnyPlayAt = now
+            end
+            return played
+        end
+
+    else
+        BLU:PrintDebug("[Registry] Direct sound id playback for '" .. tostring(selectedSound) .. "'")
+        -- Direct sound ID
+        local played = self:PlaySound(selectedSound, nil, { categoryOverride = category })
+        if played then
+            self.lastCategoryPlayAt[category] = now
+            self.lastAnyPlayAt = now
+        end
+        return played
+    end
+    
+    return false
+end
+
+-- Helper to get sound info
+function SoundRegistry:GetSoundInfo(soundId)
+    BLU:PrintDebug("[Registry] GetSoundInfo called for '" .. tostring(soundId) .. "'")
+    local sound = self.sounds[soundId]
+    if not sound then return nil end
+    
+    return {
+        id = soundId,
+        name = sound.name,
+        file = sound.file,
+        soundKit = sound.soundKit,
+        duration = sound.duration,
+        category = sound.category,
+        hasVolumeVariants = sound.hasVolumeVariants
+    }
+end
+
+function BLU:PlayCategorySound(category, volume)
+    self:PrintDebug("[Registry] BLU:PlayCategorySound helper called for '" .. tostring(category) .. "'")
+    if BLU.Registry then
+        return BLU.Registry:PlayCategorySound(category, volume)
+    end
+    return false
+end
+
+function BLU:TestAllSounds()
+    self:PrintDebug("[Registry] TestAllSounds called")
+    if not BLU.Registry then
+        self:Print("Sound registry not available")
+        return
+    end
+    
+    local sounds = BLU.Registry:GetAllSounds()
+    local count = 0
+    local delay = 0
+    
+    self:Print("Testing all sounds...")
+    
+    for soundId, soundData in pairs(sounds) do
+        count = count + 1
+        C_Timer.After(delay, function()
+            self:Print(string.format("[%d] Playing: %s", count, soundData.name or soundId))
+            BLU.Registry:PlaySound(soundId)
+        end)
+        delay = delay + (soundData.duration or 2) + 0.5
+    end
+    
+    self:Print(string.format("Scheduled %d sounds for testing", count))
+end
+
+-- Reload all sounds
+function SoundRegistry:ReloadAllSounds()
+    BLU:PrintDebug("[Registry] ReloadAllSounds called")
+    -- Clear cache
+    self.sounds = {}
+    self.categories = {}
+    
+    -- Re-initialize
+    self:Init()
+    
+    BLU:PrintDebug("Sound registry reloaded")
+end

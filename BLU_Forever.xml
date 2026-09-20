@@ -1,0 +1,52 @@
+<!-- BLU Main Loader -->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <!-- Core Systems (Load Order Matters) -->
+    <Script file="core/core.lua"/>
+    <Script file="core/systems/database.lua"/>
+    <!-- <Script file="core/systems/combat_protection.lua"/> — replaced by RGX-Framework runtime -->
+    <Script file="core/sounds/sounds.lua"/>
+    <Script file="core/systems/config.lua"/>
+    <Script file="core/systems/utils.lua"/>
+    <Script file="core/systems/registry.lua"/>
+    <Script file="core/systems/loader.lua"/>
+
+    <Script file="core/sounds/internal_sounds.lua"/>
+    <Script file="core/sounds/sharedmedia.lua"/>
+
+    <!-- User Custom Sounds (user-editable table in core/sounds/user_sounds.lua) -->
+    <Script file="core/sounds/user_sounds.lua"/>
+    <Script file="core/sounds/user_sounds_generated.lua"/>
+    <Script file="core/sounds/usersounds.lua"/>
+
+    <!-- Localization -->
+    <Script file="Localization/enUS.lua"/>
+
+    <!-- Interface: design helpers, then each options panel, then tab wiring -->
+    <Script file="core/interface/design.lua"/>
+    <Script file="core/interface/widgets.lua"/>
+    <Script file="core/interface/minimap.lua"/>
+    <!-- <Script file="core/interface/dropdown.lua"/> — replaced by RGX-Framework dropdowns -->
+    <Script file="core/interface/options/combat.lua"/>
+    <Script file="core/interface/options/tabs.lua"/>
+<Script file="core/interface/options/general.lua"/>
+<Script file="core/interface/options/profiles.lua"/>
+ <Script file="core/interface/options/sounds.lua"/>
+ <Script file="core/interface/options/sound_panel.lua"/>
+<Script file="core/interface/options/main.lua"/>
+
+<!-- Feature Modules -->
+<Script file="modules/Quest/Quest.lua"/>
+<Script file="modules/Debug/Debug.lua"/>
+<Script file="modules/Combat/Combat.lua"/>
+<Script file="modules/LevelUp/LevelUp.lua"/>
+<Script file="modules/Reputation/Reputation.lua"/>
+<Script file="modules/Honor/Honor.lua"/>
+<Script file="modules/Loot/Loot.lua"/>
+
+<!-- Commands MUST load after options module is registered -->
+<Script file="core/commands.lua"/>
+
+<!-- Initialization MUST be LAST so all modules are registered -->
+<Script file="core/initialization.lua"/>
+
+</Ui>

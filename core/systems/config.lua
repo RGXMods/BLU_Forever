@@ -1,0 +1,193 @@
+--=====================================================================================
+-- BLU Config Module
+-- Handles configuration and settings management
+--=====================================================================================
+
+local addonName = ...
+local BLU = _G["BLU"]
+local Config = {}
+BLU.Modules["config"] = Config
+
+-- Default configuration
+Config.defaults = {
+    profile = {
+        -- General settings
+        enabled = true,
+        showWelcomeMessage = true,
+        minimapIconEnabled = true,
+        minimapAngle = 220,
+        masterVolume = 0.5,
+        soundVolume = 100,
+        debugMode = false,
+        muteInInstances = false,
+        muteInCombat = false,
+        debugScopes = {
+            core = true,
+            options = true,
+            tabs = true,
+            registry = true,
+            loader = true,
+            database = true,
+            profiles = true,
+            modules = true,
+            events = true,
+            sounds = true,
+            features = true,
+        },
+        
+        -- Feature toggles
+        enableLevelUp = true,
+        enableReputation = true,
+        enableQuest = true,
+        enableHonorRank = true,
+
+        modules = {
+            levelup = true,
+            reputation = true,
+            quest = true,
+            honorrank = true,
+        },
+        
+        -- Sound selections (will be populated dynamically)
+        levelUpSound = "None",
+        reputationSound = "None",
+        questAcceptSound = "None",
+        questTurnInSound = "None",
+        honorRankSound = "None",
+        
+        selectedSounds = {
+            questcomplete = "None",
+            questprogress = "None",
+        },
+        userCustomSounds = {},
+        
+        soundVolumes = {
+            levelup = "medium",
+            reputation = "medium",
+            questturnin = "medium",
+            questcomplete = "medium",
+            questaccept = "medium",
+            questprogress = "medium",
+            honorrank = "medium",
+            combat_start_sound = "medium",
+            combat_end_sound = "medium",
+            combat_music_track = "medium",
+        },
+
+        -- Per-event sound channel (Master / SFX / Music / Ambience).
+        -- Applies to all sound types including BLU defaults and game soundpacks.
+        -- Defaults to Master so BLU default sounds and random picks behave as before.
+        soundChannels = {
+            levelup = "Master",
+            reputation = "Master",
+            questturnin = "Master",
+            questcomplete = "Master",
+            questaccept = "Master",
+            questprogress = "Master",
+            honorrank = "Master",
+            combat_start_sound = "Master",
+            combat_end_sound = "Master",
+            combat_music_track = "Music",
+        },
+
+        -- Advanced settings
+        soundChannel = "Master",
+        interruptMusic = false,
+        queueSounds = true,
+        maxQueueSize = 3
+    }
+}
+
+-- Profile changed handler
+function Config:ApplySettings()
+    BLU:PrintDebug("[Config] ApplySettings called")
+    if not BLU.db then return end
+
+    BLU.debugMode = BLU.db.debugMode
+    BLU.showWelcomeMessage = BLU.db.showWelcomeMessage
+
+    BLU:PrintDebug("Settings applied. Debug mode is: " .. tostring(BLU.debugMode))
+end
+
+-- Get setting value
+function Config:Get(key)
+    BLU:PrintDebug("[Config] Get called for key '" .. tostring(key) .. "'")
+    return BLU.db[key]
+end
+
+-- Set setting value
+function Config:Set(key, value)
+    BLU:PrintDebug("[Config] Set called for key '" .. tostring(key) .. "' => " .. tostring(value))
+    BLU.db[key] = value
+    
+    -- Handle special cases
+    if key == "debugMode" then
+        BLU.debugMode = value
+    elseif key:match("^enable") then
+        -- Feature toggle changed, update module loading
+        local feature = key:gsub("^enable", "")
+        feature = feature:sub(1,1):lower() .. feature:sub(2)
+        BLU:UpdateModuleLoading(feature, value)
+    end
+end
+
+-- Get all available sounds for a category
+function Config:GetAvailableSounds(category)
+    BLU:PrintDebug("[Config] GetAvailableSounds called for category '" .. tostring(category) .. "'")
+    local sounds = {
+        {value = "None", text = "None"}
+    }
+    
+    -- Add BLU sounds
+    for soundId, soundData in pairs(BLU.SoundRegistry or {}) do
+        if not soundData.category or soundData.category == category or soundData.category == "all" then
+            table.insert(sounds, {
+                value = soundId,
+                text = soundData.name
+            })
+        end
+    end
+    
+    -- Sort by name
+    table.sort(sounds, function(a, b)
+        if a.value == "None" then return true end
+        if b.value == "None" then return false end
+        return a.text < b.text
+    end)
+    
+    return sounds
+end
+
+-- Reset to defaults
+function Config:ResetToDefaults()
+    BLU:PrintDebug("[Config] ResetToDefaults called")
+    BLU.db:ResetProfile()
+end
+
+function Config:MigrateVolumeSettings()
+    BLU:PrintDebug("[Config] MigrateVolumeSettings called")
+    if not BLU.db or not BLU.db.soundVolumes then return end
+
+    local volumes = BLU.db.soundVolumes
+    for event, value in pairs(volumes) do
+        if type(value) == "number" then
+            if value <= 0.33 then
+                volumes[event] = "low"
+            elseif value <= 0.66 then
+                volumes[event] = "medium"
+            else
+                volumes[event] = "high"
+            end
+            BLU:PrintDebug("Migrated volume setting for " .. event .. " from " .. value .. " to " .. volumes[event])
+        end
+    end
+end
+
+-- Initialize config module
+function Config:Init()
+    BLU:PrintDebug("[Config] Config module initialized")
+    BLU:PrintDebug("[Config] Defaults available: " .. tostring(self.defaults ~= nil))
+end
+
+-- Export module
+return Config
