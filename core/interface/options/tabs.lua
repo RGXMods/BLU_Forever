@@ -689,6 +689,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
 
     button:SetScript("OnEnter", function(self)
         BLU:PrintDebug("[Tabs] Hover enter on tab '" .. tostring(text) .. "'")
+        if self.greyed or self.isPlaceholder then return end
         if not self.isActive then
             self.border:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
             self.text:SetTextColor(unpack(BLU.Modules.design.Colors.Primary))
@@ -697,6 +698,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
 
     button:SetScript("OnLeave", function(self)
         BLU:PrintDebug("[Tabs] Hover leave on tab '" .. tostring(text) .. "'")
+        if self.greyed or self.isPlaceholder then return end
         if not self.isActive then
             self.border:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
             self.text:SetTextColor(0.7, 0.7, 0.7, 1)

@@ -187,6 +187,12 @@ function Options:CreateOptionsPanel()
         return panel
     end
 
+    -- Re-apply flavor gating so greyed flags are always present at build
+    -- time, regardless of module init order
+    if BLU.Modules.flavors and BLU.Modules.flavors.ApplyToTabSpec then
+        BLU.Modules.flavors:ApplyToTabSpec(tabs)
+    end
+
     for i, tabInfo in ipairs(tabs) do
         BLU:PrintDebug("[Options] Creating tab content for '" .. tostring(tabInfo.text) .. "'")
         local tab = BLU.CreateTabButton(tabContainer, tabInfo.text, i, tabInfo.row, tabInfo.col, panel, tabInfo.icon)
@@ -195,6 +201,7 @@ function Options:CreateOptionsPanel()
         end
         -- Greyed-out flavor tabs are visible but not clickable
         if tabInfo.greyed then
+            tab.greyed = true
             tab:Disable()
         end
         panel.tabs[i] = tab

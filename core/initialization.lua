@@ -108,14 +108,9 @@ function BLU:Initialize()
 		"quest",
 		"combat",
 		"levelup",
-		"achievement",
 		"reputation",
-		"battlepet",
 		"honor",
-		"renown",
-		"tradingpost",
-		"delve",
-		"housing"
+		"hardcore"
 	})
 
 	BLU:PrintDebug("[Init] BLU.db after Phase 4: " .. tostring(BLU.db))
