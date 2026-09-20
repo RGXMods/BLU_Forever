@@ -1,0 +1,105 @@
+# BLU | Better Level-Up!
+
+BLU is a Retail World of Warcraft addon that replaces default progression sounds with curated audio from many other games.
+
+Current version: `v6.4.1`
+
+***
+
+## Overview
+
+BLU lets you swap in custom sounds for major progression moments across World of Warcraft while keeping control over event categories, sound sources, and profile setups.
+
+This update tightens profile behavior, fixes a live quest-turn-in error, and improves release note delivery across the production workflow.
+
+***
+
+## Features
+
+- Achievement sounds
+- Battle Pet sounds
+- Delve sounds, including companion progression and lives events
+- Honor sounds
+- Housing sounds
+- Level-Up sounds
+- Quest sounds
+- Renown sounds
+- Reputation sounds
+- Trading Post sounds
+- Profile management with saved profiles and presets
+- Debug tab with scoped debug filtering
+- User custom sound support
+- External sound pack discovery and registration API support
+
+***
+
+## Highlights In v6.4.1
+
+- Default remains the fallback profile until the user creates or selects another one
+- Blank new profile names now auto-fill from the current character and realm
+- `QUEST_TURNED_IN` playback no longer crashes when a missing volume reaches debug logging
+- Discord release messages now send a condensed summary instead of truncating the full changelog
+
+***
+
+## Slash Commands
+
+```text
+/blu
+/blu help
+/blu debug
+/blu status
+/blu enable
+/blu disable
+/blu refresh
+/blu rescan
+/blu addcustom myfile
+/blu removecustom path
+```
+
+***
+
+## Sound Pack Support
+
+BLU supports:
+- built-in BLU sound packs
+- external addon packs discovered automatically
+- direct registration through `BLU:RegisterSoundPack(...)` for full BLU-compatible 3-volume packs
+- bridge registration through `BLU:RegisterExternalSoundPack(...)` for simple single-file sounds
+- user custom `.ogg`, `.mp3`, and `.wav` files
+
+Full setup instructions for both supported sound pack types, plus custom-sound users:
+https://github.com/RGXMods/BLU/wiki/Sounds-Guidelines
+
+***
+
+## Compatibility
+
+- WoW Retail only
+- Interface version: `120001`
+
+For Classic support, use BLU Classic.
+
+***
+
+## Roadmap
+
+Planned follow-up areas include:
+- deeper debug tooling built on the new Debug tab
+- more compact and intuitive Profiles tab refinements
+- additional named presets and setup flows
+- continued trigger validation and event coverage cleanup
+
+***
+
+## Support
+
+- Discord: https://discord.gg/N7kdKAHVVF
+- GitHub: https://github.com/RGXMods/BLU
+- Issues: https://github.com/RGXMods/BLU/issues
+
+***
+
+## License
+
+MIT
