@@ -209,7 +209,7 @@ jobs:
               ;;
           esac
 
-          release_url="https://github.com/RGXMods/BLU/releases/tag/v${version#v}"
+          release_url="https://github.com/RGXMods/BLU_Forever/releases/tag/v${version#v}"
 
           jq -n \
             --arg username "BLU Forever Releases" \
