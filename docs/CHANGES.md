@@ -1,3 +1,8 @@
+# v1.1.3-beta.2 - 2026-09-26
+
+## Changes
+- Wired CurseForge project ID (Better Level Up! Forever) for tagged releases.
+
 # v1.1.3-beta.1 - 2026-09-25
 
 ## Changes
