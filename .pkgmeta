@@ -1,4 +1,4 @@
-package-as: BLU
+package-as: BLU_Forever
 manual-changelog: docs/CHANGES.md
 ignore:
   - CLAUDE.md

@@ -1,5 +1,5 @@
 variables:
-  GITHUB_MIRROR_REPOSITORY: RGXMods/BLU
+  GITHUB_MIRROR_REPOSITORY: RGXMods/BLU_Forever
 
 include:
   - project: rgxmods/warcraft/RGX-Framework

@@ -1,3 +1,19 @@
+# v1.1.3-beta.3 - 2026-09-26
+
+## Changes
+- Addon list **Category** and **Group** are now `RealmGX` instead of `RGX`, so these addons group under the RealmGX heading in the interface addon list.
+
+# v1.1.3-beta.2 - 2026-09-26
+
+## Changes
+- Wired CurseForge project ID (Better Level Up! Forever) for tagged releases.
+
+# v1.1.3-beta.1 - 2026-09-25
+
+## Changes
+- First packaged beta of the Forever line, built on RGX-Framework v2.7.8.
+- Options grid shows only active tabs in a compact 3-column layout; Hardcore init and greyed tab rendering fixed.
+
 # Changes
 
 ## Current Development Release
