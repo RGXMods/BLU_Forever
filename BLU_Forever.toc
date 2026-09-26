@@ -7,6 +7,7 @@
 ## Group: RealmGX
 ## Email: donniedice@protonmail.com
 ## RequiredDeps: RGX-Framework
+## DefaultState: Enabled
 ## SavedVariables: BLUForeverDB
 ## X-Curse-Project-ID: 1712132
 ## IconTexture: Interface\AddOns\BLU_Forever\media\Textures\icon.tga
