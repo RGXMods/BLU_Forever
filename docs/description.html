@@ -1,105 +1,116 @@
-# BLU | Better Level-Up!
+# <img src="https://github.com/RGXMods/BLU/blob/main/media/Textures/logo.png?raw=true" width="24" height="24"> <span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #05dffa;">| </span><span style="color: #05dffa;">B</span><span style="color: #fff;">etter </span><span style="color: #05dffa;">L</span><span style="color: #fff;">evel-</span><span style="color: #05dffa;">U</span><span style="color: #fff;">p</span><span style="color: #05dffa;">!</span> <span style="color: #4ecdc4;">(Forever)</span>
 
-BLU is a Retail World of Warcraft addon that replaces default progression sounds with curated audio from many other games.
-
-Current version: `v6.4.1`
+## ![](https://github.com/RGXMods/SimpleQuestPlates/blob/main/media/kiwi.gif?raw=true) <span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #4ecdc4;">Mods</span> <span style="color: #3598db;">-</span> <span style="color: #8b4b5c;">R</span><span style="color: #6b8fb0;">ealm</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #6b8fb0;">Community Project</span>
 
 ***
 
-## Overview
+## <span style="color: #4ecdc4;">ðŸŽ¯ Overview</span>
 
-BLU lets you swap in custom sounds for major progression moments across World of Warcraft while keeping control over event categories, sound sources, and profile setups.
+**<span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #fff;">| </span><span style="color: #05dffa;">B</span><span style="color: #fff;">etter </span><span style="color: #05dffa;">L</span><span style="color: #fff;">evel-</span><span style="color: #05dffa;">U</span><span style="color: #fff;">p</span><span style="color: #05dffa;">!</span> <span style="color: #4ecdc4;">(Forever)</span>** <span style="color: #e67e23;">is the WoW Forever build of BLU â€” replacement sounds for the level-up moments that matter, powered by</span> [<span style="color: #58be81;">RGX-Framework</span>](https://github.com/RGXMods/RGX-Framework)<span style="color: #e67e23;">. Everything that cannot exist on the Forever client has been removed â€” this build ships only what the game can fire.</span>
 
-This update tightens profile behavior, fixes a live quest-turn-in error, and improves release note delivery across the production workflow.
+<span style="color: #e67e23;">For</span> <span style="color: #2dc26b;">Retail WoW</span> <span style="color: #e67e23;">use</span> [<span style="color: #05dffa;">BLU</span>](https://www.curseforge.com/wow/addons/blu-better-level-up)<span style="color: #e67e23;">, and for Classic clients use</span> [<span style="color: #FFD700;">BLU Classic</span>](https://www.curseforge.com/wow/addons/blu-classic)<span style="color: #e67e23;">.</span>
 
-***
-
-## Features
-
-- Achievement sounds
-- Battle Pet sounds
-- Delve sounds, including companion progression and lives events
-- Honor sounds
-- Housing sounds
-- Level-Up sounds
-- Quest sounds
-- Renown sounds
-- Reputation sounds
-- Trading Post sounds
-- Profile management with saved profiles and presets
-- Debug tab with scoped debug filtering
-- User custom sound support
-- External sound pack discovery and registration API support
+![RealmGX Kiwi](https://github.com/RGXMods/SimpleQuestPlates/blob/main/media/kiwi.gif?raw=true) **<span style="color: #2dc26b;">The Kiwi Says:</span>** <span style="color: #b96ad9;">"Forever dings deserve forever sounds! Bwwiiiee."</span>
 
 ***
 
-## Highlights In v6.4.1
+## <span style="color: #4ecdc4;">âœ¨ Features</span>
 
-- Default remains the fallback profile until the user creates or selects another one
-- Blank new profile names now auto-fill from the current character and realm
-- `QUEST_TURNED_IN` playback no longer crashes when a missing volume reaches debug logging
-- Discord release messages now send a condensed summary instead of truncating the full changelog
+<span style="color: #FFD700;">ðŸ“ˆ <strong>Level-Up Sounds</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">A sound of your choice when you ding, with queueing, volume, and channel control.</span>
 
-***
+<span style="color: #2dc26b;">ðŸ“‹ <strong>Quest Sounds</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">Accept, complete, progress, and turn-in triggers.</span>
 
-## Slash Commands
+<span style="color: #b96ad9;">ðŸ‘¥ <strong>Reputation Sounds</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">Rank-up triggers for faction grinds.</span>
 
-```text
-/blu
-/blu help
-/blu debug
-/blu status
-/blu enable
-/blu disable
-/blu refresh
-/blu rescan
-/blu addcustom myfile
-/blu removecustom path
-```
+<span style="color: #ff6b6b;">âš”ï¸ <strong>Honor Rank Sounds</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">PvP rank progression triggers on the classic honor system.</span>
+
+<span style="color: #ff69b4;">âš”ï¸ <strong>Combat Triggers</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">Bloodlust/Heroism and proc-style combat cues through the RGXCombat integration.</span>
+
+<span style="color: #4ecdc4;">ðŸ—‚ï¸ <strong>Collections Tab</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">Collectible milestone triggers (mounts, pets, toys, transmog) are reserved for the Forever client's Collections system.</span>
+
+<span style="color: #58be81;">ðŸ—ºï¸ <strong>Minimap Button</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">Left-click opens the options panel, drag to reposition, Ctrl+Right-click hides it.</span>
+
+<span style="color: #e67e23;">âš™ï¸ <strong>Full Options Panel</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">General, Combat, Honor, Level Up, Loot, Quest, Reputation, Profiles, and Sounds tabs with profile support.</span>
+
+<span style="color: #b96ad9;">ðŸŽµ <strong>Custom Sounds</strong></span> <span style="color: #3598db;">-</span> <span style="color: #e67e23;">Add your own</span> <span style="color: #a8a8a8;">.ogg</span> <span style="color: #e67e23;">files, or choose from the bundled BLU defaults and shared-media packs.</span>
 
 ***
 
-## Sound Pack Support
+## <span style="color: #4ecdc4;">ðŸ—‘ï¸ Removed vs Retail BLU</span>
 
-BLU supports:
-- built-in BLU sound packs
-- external addon packs discovered automatically
-- direct registration through `BLU:RegisterSoundPack(...)` for full BLU-compatible 3-volume packs
-- bridge registration through `BLU:RegisterExternalSoundPack(...)` for simple single-file sounds
-- user custom `.ogg`, `.mp3`, and `.wav` files
-
-Full setup instructions for both supported sound pack types, plus custom-sound users:
-https://github.com/RGXMods/BLU/wiki/Sounds-Guidelines
+<span style="color: #e67e23;">WoW Forever is an Era-lineage client; these Retail systems do not exist there and their modules, tabs, sounds, and defaults are gone:</span> <span style="color: #ff6b6b;">Achievements</span><span style="color: #e67e23;">,</span> <span style="color: #ff69b4;">Battle Pets</span><span style="color: #e67e23;">,</span> <span style="color: #4ecdc4;">Collectibles</span><span style="color: #e67e23;">,</span> <span style="color: #b96ad9;">Delves</span><span style="color: #e67e23;">,</span> <span style="color: #58be81;">Housing</span><span style="color: #e67e23;">,</span> <span style="color: #FFD700;">Prey</span><span style="color: #e67e23;">,</span> <span style="color: #2dc26b;">Renown</span><span style="color: #e67e23;">, and the</span> <span style="color: #05dffa;">Trading Post</span><span style="color: #e67e23;">.</span>
 
 ***
 
-## Compatibility
+## <span style="color: #4ecdc4;">ðŸ“‹ Slash Commands</span>
 
-- WoW Retail only
-- Interface version: `120001`
+<span style="color: #e67e23;">The addon can be managed using the following slash commands</span><span style="color: #3598db;">:</span>
 
-For Classic support, use BLU Classic.
+<div style="background-color: #0d1117; color: #58a6ff; font-family: 'Consolas', 'Monaco', monospace; border: 1px solid #30363d;">/blu | /bluf              # Opens the options panel<br>/blu debug                # Toggles debug mode<br>/blu status               # Shows addon status<br>/blu icon on | off        # Shows or hides the minimap button<br>/blu addcustom file|name  # Registers a custom sound file<br>/blu removecustom path    # Removes a custom sound<br>/blu refresh              # Rescans user custom sounds</div>
 
-***
-
-## Roadmap
-
-Planned follow-up areas include:
-- deeper debug tooling built on the new Debug tab
-- more compact and intuitive Profiles tab refinements
-- additional named presets and setup flows
-- continued trigger validation and event coverage cleanup
+<span style="color: #e67e23;">Settings are stored in</span> <span style="color: #a8a8a8;">BLUForeverDB</span> <span style="color: #e67e23;">with full profile support on the Profiles tab.</span>
 
 ***
 
-## Support
+## <span style="color: #4ecdc4;">ðŸŽ® Compatibility</span>
 
-- Discord: https://discord.gg/N7kdKAHVVF
-- GitHub: https://github.com/RGXMods/BLU
-- Issues: https://github.com/RGXMods/BLU/issues
+<span style="color: #2dc26b;"><strong>WoW Forever Beta</strong></span> <span style="color: #3598db;">|</span> <span style="color: #2dc26b;">âœ… Fully Supported (Interface 16001)</span>
+
+<span style="color: #e67e23;">BLU Forever is the Era-lineage build. Retail BLU remains the</span> <span style="color: #2dc26b;">Retail</span> <span style="color: #e67e23;">build, and Classic flavors are covered by</span> [<span style="color: #FFD700;">BLU Classic</span>](https://www.curseforge.com/wow/addons/blu-classic)<span style="color: #e67e23;">.</span>
 
 ***
 
-## License
+## <span style="color: #4ecdc4;">ðŸ“¥ Installation</span>
 
-MIT
+1.  **<span style="color: #2dc26b;">Install</span>** <span style="color: #e67e23;">the required</span> [<span style="color: #58be81;">RGX-Framework</span>](https://github.com/RGXMods/RGX-Framework) <span style="color: #e67e23;">dependency.</span>
+2.  **<span style="color: #4ecdc4;">Copy</span>** <span style="color: #e67e23;">the</span> <span style="color: #a8a8a8;">BLU_Forever</span> <span style="color: #e67e23;">folder to</span> <span style="color: #e67e23;">World of Warcraft/<em>_classic_beta_</em>/Interface/AddOns/</span>
+3.  **<span style="color: #b96ad9;">Reload</span>** <span style="color: #e67e23;">with</span> <span style="color: #a8a8a8;">/reload</span> <span style="color: #e67e23;">or restart the client, then enable both addons.</span>
+<br><br>
+![RealmGX Kiwi](https://github.com/RGXMods/SimpleQuestPlates/blob/main/media/kiwi.gif?raw=true) **<span style="color: #2dc26b;">The Kiwi Says:</span>** <span style="color: #b96ad9;">"Only what the game can fire â€” nothing wasted! Bwwiiiee."</span>
+<br><br>
+
+***
+
+## <span style="color: #4ecdc4;">ðŸ’ Support the Project</span>
+
+*   **<span style="color: #e67e23;">â˜•ï¸ Buy Me a Coffee</span><span style="color: #3598db;">:</span>** [<span style="color: #FFD700;">Donate</span>](https://www.buymeacoffee.com/donniedice)
+*   **<span style="color: #2dc26b;">ðŸ’¸ Donate via CashApp</span><span style="color: #3598db;">:</span>** [<span style="color: #FFD700;">Donate</span>](https://bit.ly/3fyxxSU)
+*   **<span style="color: #ff6b6b;">â­ï¸ Star on GitHub</span><span style="color: #3598db;">:</span>** [<span style="color: #4ecdc4;">BLU Forever</span>](https://github.com/RGXMods/BLU_Forever)
+*   **<span style="color: #b96ad9;">ðŸ“¢ Share</span><span style="color: #3598db;">:</span>** <span style="color: #e67e23;">Share it with friends and guildmates!</span>
+
+***
+
+## <span style="color: #4ecdc4;">ðŸ¤ Feedback and Contributions</span>
+
+*   **<span style="color: #ff6b6b;">ðŸ› Report Issues</span><span style="color: #3598db;">:</span>** [<span style="color: #24292e;">GitHub</span> <span style="color: #ff6b6b;">Issues</span>](https://github.com/RGXMods/BLU_Forever/issues)
+*   **<span style="color: #2dc26b;">ðŸ”§ Contribute</span><span style="color: #3598db;">:</span>** <span style="color: #e67e23;">Bug reports, translations, and feature ideas are welcome via</span> [<span style="color: #24292e;">GitHub</span>](https://github.com/RGXMods/BLU_Forever)<span style="color: #e67e23;">.</span>
+*   **<span style="color: #b96ad9;">ðŸ“ž Contact</span><span style="color: #3598db;">:</span>** <span style="color: #e67e23;">Join the</span> [<span style="color: #7289da;">RealmGX Discord</span>](https://discord.gg/N7kdKAHVVF) <span style="color: #e67e23;">for help and feedback.</span>
+
+***
+
+## <span style="color: #4ecdc4;">ðŸ“„ License</span>
+
+<span style="color: #e67e23;">This project is licensed under the</span> [<span style="color: #2dc26b;">MIT License</span>](https://github.com/RGXMods/BLU_Forever/blob/main/LICENSE)<span style="color: #e67e23;">.</span>
+
+***
+
+## <span style="color: #4ecdc4;">âš ï¸ Disclaimer</span>
+
+**<span style="color: #ff6b6b;">Disclaimer</span><span style="color: #3598db;">:</span>** <span style="color: #e67e23;">This</span> <span style="color: #4ecdc4;">BLU Forever</span> <span style="color: #e67e23;">addon is provided</span> <span style="color: #a8a8a8;">"as is"</span> <span style="color: #e67e23;">without warranty. Use at your own risk. The author is not responsible for any issues arising from its use.</span>
+
+***
+
+## <span style="color: #4ecdc4;">ðŸŒŸ Thank you for choosing </span><span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span><span style="color: #4ecdc4;"> Mods! ðŸŒŸ</span>
+
+**<span style="color: #e67e23;">Made with â¤ï¸ by the</span>** <span style="color: #8b4b5c;">R</span><span style="color: #6b8fb0;">ealm</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #6b8fb0;">Community</span>
+**<span style="color: #2dc26b;">Lead Developer</span><span style="color: #3598db;">:</span>** [<span style="color: #b96ad9;">DonnieDice</span>](https://github.com/donniedice)
+
+_<span style="color: #e67e23;">"Forever sounds for the Forever client."</span>_
+
+![RealmGX Kiwi](https://github.com/RGXMods/SimpleQuestPlates/blob/main/media/kiwi.gif?raw=true) **<span style="color: #2dc26b;">The Kiwi Says:</span>** <span style="color: #b96ad9;">"See you in the Forever beta! Bwwiiiee."</span>
+
+***
+
+[<span style="color: #FFD700;">ðŸŽ® Join our</span> <span style="color: #7289da;">Discord</span> <span style="color: #FFD700;">Community</span>](https://discord.gg/N7kdKAHVVF) <span style="color: #3598db;">|</span> [<span style="color: #2dc26b;">â­ Star us on</span> <span style="color: #24292e;">GitHub</span>](https://github.com/RGXMods/BLU_Forever) <span style="color: #3598db;">|</span> [<span style="color: #ff6b6b;">â˜• Support Development</span>](https://www.buymeacoffee.com/donniedice)
+
+**<img src="https://github.com/RGXMods/SimpleQuestPlates/blob/main/media/kiwi.gif?raw=true" width="18" height="18"> <span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #4ecdc4;">Mods</span> <span style="color: #3598db;">-</span> <span style="color: #6b8fb0;">Powered by </span><span style="color: #8b4b5c;">R</span><span style="color: #6b8fb0;">ealm</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #6b8fb0;">Community</span>**
