@@ -9,7 +9,9 @@ local BLU = _G["BLU"]
 local Tabs = BLU.Modules and BLU.Modules["tabs"]
 
 -- Layout Constants
-local TAB_BUTTON_WIDTH_CORE = 94
+-- Width of the vertical divider between the settings block and the event
+-- pages; must match the tabs module's DIVIDER_WIDTH (operator note 10638).
+local DIVIDER_WIDTH = 2
 
 -- Create options module
 local Options = {}
@@ -177,8 +179,14 @@ function Options:CreateOptionsPanel()
     leftTabGroup:SetBackdropBorderColor(0.15, 0.25, 0.35, 1)
 
     local leftSeparator = tabContainer:CreateTexture(nil, "OVERLAY")
-    leftSeparator:SetSize(2, tabContainerHeight - 12)
-    leftSeparator:SetPoint("TOPLEFT", leftTabGroup, "TOPRIGHT", 5, -2)
+    leftSeparator:SetSize(DIVIDER_WIDTH, tabContainerHeight - 12)
+    -- Operator note 10638: the divider moves right of the settings block
+    -- (columns 1-2) so it separates the settings tabs from the event pages.
+    -- Tabs:GetDividerOffset() is the strip-derived x (settings sub-strip end
+    -- + 5px); fall back to the legacy fixed 100px-group divider position if
+    -- the tabs module predates the API.
+    local dividerX = (Tabs and Tabs.GetDividerOffset and Tabs:GetDividerOffset()) or 110
+    leftSeparator:SetPoint("TOPLEFT", tabContainer, "TOPLEFT", dividerX, -2)
     leftSeparator:SetColorTexture(0.12, 0.16, 0.22, 0.85)
 
     -- Dynamic reflow: whenever the tab strip's width changes (UI scale,
