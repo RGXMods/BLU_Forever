@@ -159,6 +159,9 @@ function Options:CreateOptionsPanel()
     local tabContainer = CreateFrame("Frame", nil, container)
     tabContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -2)
     tabContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -2)
+    if Tabs and Tabs.SetContainer then
+        Tabs:SetContainer(tabContainer)
+    end
     local tabContainerHeight = (Tabs and Tabs.GetContainerHeight and Tabs:GetContainerHeight()) or 62
     tabContainer:SetHeight(tabContainerHeight)
 
@@ -178,6 +181,27 @@ function Options:CreateOptionsPanel()
     leftSeparator:SetPoint("TOPLEFT", leftTabGroup, "TOPRIGHT", 5, -2)
     leftSeparator:SetColorTexture(0.12, 0.16, 0.22, 0.85)
 
+    -- Dynamic reflow: whenever the tab strip's width changes (UI scale,
+    -- panel resize), re-wrap the buttons and resize the container and its
+    -- fixed-height decorations so leftTabGroup/leftSeparator track the
+    -- wrapped row count.
+    local function RefreshTabStripLayout()
+        if not (Tabs and Tabs.RefreshLayout) then return end
+        local rows = Tabs:RefreshLayout()
+        if rows and Tabs.GetContainerHeight then
+            local newHeight = Tabs:GetContainerHeight()
+            if newHeight ~= tabContainerHeight then
+                tabContainerHeight = newHeight
+                tabContainer:SetHeight(newHeight)
+                leftTabGroup:SetSize(100, newHeight - 8)
+                leftSeparator:SetSize(2, newHeight - 12)
+            end
+        end
+    end
+    tabContainer:HookScript("OnSizeChanged", function()
+        RefreshTabStripLayout()
+    end)
+
     panel.tabs = {}
     panel.contents = {}
 
@@ -196,6 +220,10 @@ function Options:CreateOptionsPanel()
     for i, tabInfo in ipairs(tabs) do
         BLU:PrintDebug("[Options] Creating tab content for '" .. tostring(tabInfo.text) .. "'")
         local tab = BLU.CreateTabButton(tabContainer, tabInfo.text, i, tabInfo.row, tabInfo.col, panel, tabInfo.icon)
+        if Tabs then
+            Tabs.buttons = Tabs.buttons or {}
+            Tabs.buttons[i] = tab
+        end
         if tabInfo.placeholder then
             tab:SetPlaceholder(true)
         end
@@ -238,6 +266,11 @@ function Options:CreateOptionsPanel()
         end
         panel.contents[i] = content
     end
+
+    -- All buttons exist now: run the initial dynamic wrap pass so the strip
+    -- reflects the live spec at the container's actual width (this also
+    -- corrects the container height before the panel is first shown).
+    RefreshTabStripLayout()
 
     -- Destroy all child frames/regions on a content panel so a clean rebuild won't stack widgets.
     local function ClearTabContent(content)

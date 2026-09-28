@@ -24,6 +24,82 @@ local function GetTabRowWidth()
     return TAB_BUTTON_WIDTH_CORE + (5 * TAB_BUTTON_WIDTH_WIDE) + (5 * TAB_SPACING) + 16
 end
 
+-- Dynamic tab strip layout ---------------------------------------------------
+-- The strip derives its geometry from the live spec table and the container's
+-- actual width instead of the legacy fixed col-based xOffset math. Buttons are
+-- laid out left-to-right at fixed widths/spacing and wrap onto a new row
+-- (aligned to the same left edge) when the next button would not fit at the
+-- container's current width. The legacy per-tab `row`/`col` spec fields are
+-- kept for compatibility but are hints only; positions come from this
+-- layout pass.
+--
+-- Layout model (matches the legacy single-row rendering when everything fits
+-- on one row):
+--   * first button of the strip: x = TAB_ROW_PADDING, width = CORE (94)
+--   * every other button:        x = prev right edge + TAB_SPACING (6),
+--                                width = WIDE (100)
+--   * every button:             y = -6 - (row-1) * (22 + 3)
+--
+-- The legacy per-button math in UpdatePosition was:
+--   col 1: x = 8,  width 94
+--   col>1: x = 8 + 94 + 16 + (col-2)*(100+6) = 118 + (col-2)*106, width 100
+-- so buttons sit at x = 8, 118, 224, 330, ... The gap after the CORE button
+-- is a 16px gutter; every later WIDE button is 6px after the previous one.
+-- The dynamic pass reproduces exactly this sequence and wraps to the next
+-- row (same left edge and spacing) when the next button would not fit at
+-- the container's current width.
+
+-- Compute the dynamic layout for the live spec at a given container width.
+-- Returns a table: { buttons = {{index, x, y, width, row}, ...}, rows = N }
+-- Buttons hidden by the flavors hook (hidden = true) are skipped.
+local function ComputeTabLayout(containerWidth)
+    local layout = { buttons = {}, rows = 1 }
+    if not BLU.OptionsTabs or containerWidth == nil or containerWidth <= 0 then
+        return layout
+    end
+
+    local row = 1
+    local prevRight = nil
+    local prevWidth = nil
+
+    for index, tabInfo in ipairs(BLU.OptionsTabs) do
+        if not tabInfo.hidden then
+            local width
+            local x
+            if prevRight == nil then
+                -- first button on this row: CORE width at the left padding
+                x = TAB_ROW_PADDING
+                width = TAB_BUTTON_WIDTH_CORE
+            else
+                -- gap after a CORE button is the legacy 16px gutter,
+                -- gap after a WIDE button is the normal 6px spacing
+                local gap = (prevWidth == TAB_BUTTON_WIDTH_CORE) and 16 or TAB_SPACING
+                x = prevRight + gap
+                width = TAB_BUTTON_WIDTH_WIDE
+                -- Wrap: does this WIDE button fit at the container's width?
+                if x + width > containerWidth then
+                    row = row + 1
+                    x = TAB_ROW_PADDING
+                    width = TAB_BUTTON_WIDTH_CORE
+                end
+            end
+            local y = -6 - (row - 1) * (TAB_BUTTON_HEIGHT + TAB_ROW_SPACING)
+            layout.buttons[#layout.buttons + 1] = {
+                index = index,
+                x = x,
+                y = y,
+                width = width,
+                row = row,
+            }
+            prevRight = x + width
+            prevWidth = width
+        end
+    end
+
+    layout.rows = row
+    return layout
+end
+
 -- Generic "coming soon" placeholder panel — used by Combat, Collectibles, Loot, and Prey
 local PLACEHOLDER_CONFIG = {
     Combat = {
@@ -598,10 +674,20 @@ local function CreateCombatPrototypePanel(panel)
 end
 
 function Tabs:GetRowCount()
+    -- Dynamic layout: row count comes from the wrapped layout for the live
+    -- spec at the tab container's current width. Falls back to the legacy
+    -- spec `row` hints when no container has been wired yet (so callers that
+    -- run before CreateOptionsPanel still get a sane height).
+    if self.container and self.container.GetWidth then
+        local ok, width = pcall(self.container.GetWidth, self.container)
+        if ok and type(width) == "number" and width > 0 then
+            return ComputeTabLayout(width).rows
+        end
+    end
     local maxRow = 1
     if BLU.OptionsTabs then
         for _, tabInfo in ipairs(BLU.OptionsTabs) do
-            if tabInfo.row and tabInfo.row > maxRow then
+            if tabInfo.row and tabInfo.row > maxRow and not tabInfo.hidden then
                 maxRow = tabInfo.row
             end
         end
@@ -613,31 +699,83 @@ function Tabs:GetContainerHeight()
     return 6 + (self:GetRowCount() * TAB_BUTTON_HEIGHT) + ((self:GetRowCount() - 1) * TAB_ROW_SPACING) + 6
 end
 
+-- Wire the strip's container frame. Called by CreateOptionsPanel after the
+-- tabContainer exists; GetRowCount then reflects the wrapped layout at the
+-- container's live width.
+function Tabs:SetContainer(container)
+    self.container = container
+end
+
+-- Recompute the dynamic layout for the live spec at the container's current
+-- width and apply it to every tab button. Idempotent; safe to call on every
+-- OnSizeChanged and after any spec change (tab add/remove). Buttons whose
+-- spec entry is hidden are hidden; all others are shown and repositioned.
+-- Returns the computed row count.
+function Tabs:RefreshLayout()
+    if not self.container then return nil end
+    local width = self.container:GetWidth()
+    if not width or width <= 0 then return nil end
+
+    local layout = ComputeTabLayout(width)
+    local applied = {}
+    for _, entry in ipairs(layout.buttons) do
+        local button = self.buttons and self.buttons[entry.index]
+        if button then
+            button.tabX = entry.x
+            button.tabLayoutRow = entry.row
+            button.tabWidth = entry.width
+            button:UpdatePosition()
+            button:Show()
+            applied[entry.index] = true
+        end
+    end
+    -- Buttons whose spec entry is hidden (flavor-gated out) stay hidden.
+    if self.buttons then
+        for index, button in ipairs(self.buttons) do
+            if not applied[index] then
+                button:Hide()
+            end
+        end
+    end
+    self.layoutRows = layout.rows
+    return layout.rows
+end
+
 -- Create a tab button (alpha.3 style)
 function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
     local buttonName = "BLUTab" .. tostring(index) .. text:gsub("%W", "")
     local button = CreateFrame("Button", buttonName, parent)
     button:SetSize(TAB_BUTTON_WIDTH_CORE, TAB_BUTTON_HEIGHT)
+    -- Legacy spec hints, kept for compatibility; the dynamic layout pass
+    -- (Tabs:RefreshLayout) owns the actual geometry.
     button.tabRow = row
     button.tabCol = col
     button.isPlaceholder = false
-    button:SetSize(TAB_BUTTON_WIDTH_CORE, TAB_BUTTON_HEIGHT)
+
+    -- Dynamic position/width for this button, computed from the live spec
+    -- and the container's actual width by ComputeTabLayout. Until the first
+    -- strip-level layout pass runs (Tabs:RefreshLayout), fall back to the
+    -- legacy fixed row/col math so the button renders exactly where the old
+    -- code put it; once the dynamic pass has run, tabX/tabLayoutRow/tabWidth
+    -- own the geometry.
+    local function legacyPosition(self)
+        if self.tabCol == 1 then
+            return TAB_ROW_PADDING, TAB_BUTTON_WIDTH_CORE
+        end
+        return TAB_ROW_PADDING + TAB_BUTTON_WIDTH_CORE + 16 + (self.tabCol - 2) * (TAB_BUTTON_WIDTH_WIDE + TAB_SPACING),
+            TAB_BUTTON_WIDTH_WIDE
+    end
 
     function button:UpdatePosition()
-        local startX = TAB_ROW_PADDING
-        local xOffset = startX
-        local width = TAB_BUTTON_WIDTH_CORE
-
-        if self.tabCol == 1 then
-            xOffset = startX
-            width = TAB_BUTTON_WIDTH_CORE
+        local xOffset, width
+        if self.tabX ~= nil then
+            xOffset, width = self.tabX, (self.tabWidth or TAB_BUTTON_WIDTH_CORE)
         else
-            xOffset = startX + TAB_BUTTON_WIDTH_CORE + 16 + (self.tabCol - 2) * (TAB_BUTTON_WIDTH_WIDE + TAB_SPACING)
-            width = TAB_BUTTON_WIDTH_WIDE
+            xOffset, width = legacyPosition(self)
         end
-
+        local layoutRow = self.tabLayoutRow or self.tabRow or 1
+        local yOffset = -6 - (layoutRow - 1) * (TAB_BUTTON_HEIGHT + TAB_ROW_SPACING)
         self:SetWidth(width)
-        local yOffset = -6 - (self.tabRow - 1) * (TAB_BUTTON_HEIGHT + TAB_ROW_SPACING)
         self:ClearAllPoints()
         self:SetPoint("TOPLEFT", parent, "TOPLEFT", xOffset, yOffset)
     end
@@ -646,9 +784,8 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
     button:HookScript("OnShow", function(self)
         self:UpdatePosition()
     end)
-    parent:HookScript("OnSizeChanged", function()
-        button:UpdatePosition()
-    end)
+    -- Container width changes re-wrap the whole strip; the strip-level
+    -- RefreshLayout hook below triggers this button's reposition too.
 
     local bg = button:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
