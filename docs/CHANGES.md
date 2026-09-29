@@ -1,3 +1,8 @@
+# v1.1.3-beta.36 - 2026-09-29
+
+## Changes
+- Added the `AGENTS.md` framework-build and interface-versioning directives.
+
 # v1.1.3-beta.3 - 2026-09-26
 
 ## Changes
