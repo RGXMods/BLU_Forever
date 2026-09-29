@@ -28,7 +28,7 @@ WoW Forever is an Era-lineage client; these retail systems do not exist there an
 
 | Command | Effect |
 |---|---|
-| `/blu` or `/bluf` | Open the options panel |
+| `/blu` | Open the options panel |
 | `/blu debug` | Toggle debug mode |
 | `/blu status` | Show addon status |
 | `/blu icon on/off` | Show or hide the minimap button |

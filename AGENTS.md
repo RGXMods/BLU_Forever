@@ -23,7 +23,7 @@ disabled.
   Forever client cannot fire them.
 - Port shared changes from Retail BLU selectively. Do not overwrite the
   `BLUForeverDB` SavedVariables name, the `16001` interface target, the
-  `/bluf` slash group, or the gutted tab layout.
+  or the gutted tab layout.
 - Keep the RGX-Framework dependency and use its APIs (events, slash,
   minimap, database, design) instead of parallel plumbing.
 - Keep `BLU_Forever.toc` and the addon version synchronized when changing

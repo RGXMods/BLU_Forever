@@ -523,8 +523,37 @@ function BLU.CreateProfilesPanel(panel)
     EnsurePopupConfig(panel)
 
     local content = CreateFrame("Frame", nil, panel)
-    content:SetPoint("TOPLEFT", 1, -8)
-    content:SetPoint("BOTTOMRIGHT", -7, 8)
+    content:SetPoint("TOPLEFT", 10, -10)
+    content:SetPoint("BOTTOMRIGHT", -10, 10)
+
+	local pageBg = content:CreateTexture(nil, "BACKGROUND")
+	pageBg:SetAllPoints()
+	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+
+	local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
+	titleBar:SetPoint("TOPLEFT", 0, 0)
+	titleBar:SetPoint("TOPRIGHT", 0, 0)
+	titleBar:SetHeight(44)
+	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
+	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
+	titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+
+	local titleIcon = titleBar:CreateTexture(nil, "ARTWORK")
+	titleIcon:SetSize(24, 24)
+	titleIcon:SetPoint("LEFT", 10, 0)
+	titleIcon:SetTexture("Interface\\Icons\\Ability_Marksmanship")
+
+	local titleLabel = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	titleLabel:SetPoint("LEFT", titleIcon, "RIGHT", 8, 0)
+	titleLabel:SetText("|cff05dffaProfiles|r")
+
+    local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    intro:SetPoint("TOPLEFT", 0, -64)
+    intro:SetPoint("TOPRIGHT", 0, -64)
+    intro:SetJustifyH("LEFT")
+    intro:SetWordWrap(true)
+    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetText("Create, switch, and manage your saved sound profiles.")
 
     -- Main profile section: saved profiles, current profile, and actions are combined
     local col1X = 16
@@ -533,8 +562,8 @@ function BLU.CreateProfilesPanel(panel)
     local colGap  = 8
 
     local mainSection = BLU.Modules.design:CreateSection(content, "Profiles", "Interface\\Icons\\Ability_Marksmanship")
-    mainSection:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
-    mainSection:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, 0)
+    mainSection:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -102)
+    mainSection:SetPoint("TOPRIGHT", content, "TOPRIGHT", -10, -102)
     mainSection:SetHeight(175)
 
     -- Highlight frame for Active Profile info
@@ -554,9 +583,40 @@ function BLU.CreateProfilesPanel(panel)
     profileDropdown:SetPoint("TOPLEFT", profileDropdownLabel, "BOTTOMLEFT", -15, -4)
     UIDropDownMenu_SetWidth(profileDropdown, 220)
     profileDropdown.xOffset = 18
+    profileDropdown:SetAlpha(0)
+    profileDropdown:SetScale(0.01)
+
+    local profileButton = CreateFrame("Button", nil, mainSection.content, "BackdropTemplate")
+    profileButton:SetPoint("TOPLEFT", profileDropdownLabel, "BOTTOMLEFT", 0, -6)
+    profileButton:SetSize(220, 22)
+    profileButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
+    profileButton:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
+    profileButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    profileButton:RegisterForClicks("LeftButtonUp")
+
+    local profileButtonText = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    profileButtonText:SetPoint("LEFT", 8, 0)
+    profileButtonText:SetPoint("RIGHT", -18, 0)
+    profileButtonText:SetJustifyH("LEFT")
+    profileButtonText:SetTextColor(0.84, 0.84, 0.84, 1)
+
+    local profileArrow = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    profileArrow:SetPoint("RIGHT", -6, 0)
+    profileArrow:SetText("v")
+    profileArrow:SetTextColor(0.70, 0.78, 0.86, 1)
+
+    profileButton:SetScript("OnClick", function(self)
+        ToggleDropDownMenu(1, nil, profileDropdown, self, 0, 0)
+    end)
+    profileButton:SetScript("OnEnter", function(self)
+        self:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
+    end)
+    profileButton:SetScript("OnLeave", function(self)
+        self:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    end)
 
     local profileCount = mainSection.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    profileCount:SetPoint("TOPLEFT", profileDropdown, "BOTTOMLEFT", 20, -4)
+    profileCount:SetPoint("TOPLEFT", profileButton, "BOTTOMLEFT", 0, -4)
     profileCount:SetPoint("RIGHT", mainSection.content, "RIGHT", -10, 0)
     profileCount:SetJustifyH("LEFT")
     profileCount:SetTextColor(0.72, 0.72, 0.72)
@@ -624,7 +684,7 @@ function BLU.CreateProfilesPanel(panel)
     presetsSection:SetPoint("TOPLEFT", mainSection, "BOTTOMLEFT", 0, -4)
     presetsSection:SetPoint("TOPRIGHT", mainSection, "BOTTOMRIGHT", 0, -4)
     presetsSection:SetPoint("BOTTOMLEFT", content, "BOTTOMLEFT", 0, 4)
-    presetsSection:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", 0, 4)
+    presetsSection:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", -10, 4)
 
     local presetColWidth = 180
     for presetIndex, preset in ipairs(PROFILE_PRESETS) do
@@ -782,6 +842,7 @@ function BLU.CreateProfilesPanel(panel)
         UIDropDownMenu_Initialize(profileDropdown, profileDropdown_OnInitialize)
 
         UIDropDownMenu_SetText(profileDropdown, tostring(selectedProfile))
+        profileButtonText:SetText(tostring(selectedProfile))
         currentProfileValue:SetText("|cff05dffa" .. tostring(activeProfileName) .. "|r")
         characterProfileLabel:SetText("Character: |cff95a5a6" .. tostring(characterProfileName) .. "|r")
         profileCount:SetText("Saved: |cffffd700" .. tostring(#profileNames) .. "|r")
