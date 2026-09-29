@@ -66,9 +66,9 @@ local function EnsureReadyForOptions()
     return BLU.db ~= nil and BLU.OpenOptions ~= nil
 end
 
--- Register slash commands
-SLASH_BLUF1 = "/bluf"
-SLASH_BLUF2 = "/blu"
+-- Register slash commands (operator 2026-09-28: /blu only — one BLU per
+-- client install, no alias needed)
+SLASH_BLUF1 = "/blu"
 
 SlashCmdList["BLUF"] = function(msg)
     BLU:PrintDebug("/blu command executed with message: " .. tostring(msg))
@@ -135,11 +135,36 @@ SlashCmdList["BLUF"] = function(msg)
         end
     elseif command == "status" then
         BLU:PrintDebug("[Commands] Showing addon status")
+        local version = (BLU.GetMetadata and BLU:GetMetadata(addonName, "Version")) or BLU.version or "?"
         BLU:Print("|cff00ccffBLU Status:|r")
+        BLU:Print("  Version: " .. tostring(version))
         BLU:Print("  Database: " .. (BLU.db and "|cff00ff00Loaded|r" or "|cffff0000Not Loaded|r"))
         BLU:Print("  Options Panel: " .. (BLU.OptionsPanel and "|cff00ff00Created|r" or "|cffff9900Not Created|r"))
         BLU:Print("  Enabled: " .. ((BLU.db and BLU.db.enabled) and "|cff00ff00Yes|r" or "|cffff0000No|r"))
         BLU:Print("  Debug Mode: " .. (BLU.debugMode and "|cff00ff00On|r" or "|cff808080Off|r"))
+        BLU:Print("  Tabs: " .. tostring(BLU.OptionsTabs and #BLU.OptionsTabs or 0))
+        local panel = BLU.OptionsPanel
+        if panel and panel.contents then
+            for i = 1, #panel.contents do
+                local info = (BLU.OptionsTabs and BLU.OptionsTabs[i]) or {}
+                local content = panel.contents[i]
+                local hasBar = false
+                for _, child in ipairs({ content:GetChildren() }) do
+                    for _, pageChild in ipairs({ child:GetChildren() }) do
+                        if pageChild.GetHeight and pageChild:GetHeight() == 44 then
+                            hasBar = true
+                            break
+                        end
+                    end
+                    if hasBar then break end
+                end
+                local err = BLU._panelErrors and BLU._panelErrors[info.text]
+                BLU:Print(string.format("  [%d] %-12s header=%s%s",
+                    i, tostring(info.text),
+                    hasBar and "|cff00ff00Y|r" or "|cffff0000N|r",
+                    err and (" |cffff0000" .. err .. "|r") or ""))
+            end
+        end
     elseif command == "refresh" or command == "rescan" then
         BLU:PrintDebug("[Commands] Refreshing external sounds")
         if BLU.RefreshUserSounds then

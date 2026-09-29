@@ -34,7 +34,7 @@ local function CreateSoundDropdown(parent, eventType, label, yOffset, soundType)
 
 	local container = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	container:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, yOffset)
-	container:SetPoint("RIGHT", parent, "RIGHT", -10, 0)
+	container:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -10, yOffset)
 	container:SetHeight(68)
 	container:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
 	container:SetBackdropColor(0.08, 0.11, 0.15, 0.92)
@@ -42,14 +42,14 @@ local function CreateSoundDropdown(parent, eventType, label, yOffset, soundType)
 
 	local dropdownLabel = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	dropdownLabel:SetPoint("TOPLEFT", 10, -6)
-	dropdownLabel:SetPoint("RIGHT", -10, 0)
+	dropdownLabel:SetPoint("TOPRIGHT", container, "TOPRIGHT", -10, -6)
 	dropdownLabel:SetJustifyH("LEFT")
 	dropdownLabel:SetTextColor(1.0, 0.82, 0.18)
 	dropdownLabel:SetText(label)
 
 	local currentSound = container:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	currentSound:SetPoint("TOPLEFT", dropdownLabel, "BOTTOMLEFT", 0, -2)
-	currentSound:SetPoint("RIGHT", -10, 0)
+	currentSound:SetPoint("TOPRIGHT", dropdownLabel, "BOTTOMRIGHT", 0, -2)
 	currentSound:SetJustifyH("LEFT")
 	currentSound:SetTextColor(0.02, 0.87, 0.98)
 	currentSound:SetWordWrap(false)
@@ -847,9 +847,16 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 	content:SetPoint("TOPLEFT", 10, -10)
 	content:SetPoint("BOTTOMRIGHT", -10, 10)
 
+	-- Match the Hardcore page look (operator 2026-09-28): the same subtle
+	-- content tint behind the title bar and dropdowns.
+	local contentBg = content:CreateTexture(nil, "BACKGROUND")
+	contentBg:SetAllPoints()
+	contentBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+
 	local icons = {
 		levelup = "Interface\\Icons\\Achievement_Level_100",
 		achievement = "Interface\\Icons\\Achievement_Quests_Completed_08",
+		loot = "Interface\\Icons\\INV_Misc_Coin_02",
 		quest = "Interface\\Icons\\INV_Misc_Note_01",
 		reputation = "Interface\\Icons\\Achievement_Reputation_01",
 		battlepet = "Interface\\Icons\\INV_Pet_BattlePetTraining",
@@ -862,7 +869,7 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 	-- Single titlebar: icon + title + module toggle
 	local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
 	titleBar:SetPoint("TOPLEFT", 0, 0)
-	titleBar:SetPoint("RIGHT", 0, 0)
+	titleBar:SetPoint("TOPRIGHT", 0, 0)
 	titleBar:SetHeight(44)
 	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
 	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
@@ -950,23 +957,37 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 		end)
 	end)
 
-	-- Sound dropdowns directly below titleBar
-	local dropY = -54
+	-- Match Hardcore: title bar, an introductory line, then full-width sound rows.
+	local descriptions = {
+		levelup = "Pick a sound for each level-up.",
+		quest = "Pick sounds for quest progress and completion.",
+		reputation = "Pick a sound for reputation gains.",
+		achievement = "Pick sounds for legacy achievements.",
+		honorrank = "Pick a sound for honor milestones.",
+	}
+	local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	intro:SetPoint("TOPLEFT", 0, -64)
+	intro:SetPoint("TOPRIGHT", 0, -64)
+	intro:SetJustifyH("LEFT")
+	intro:SetWordWrap(true)
+	intro:SetTextColor(0.6, 0.66, 0.72)
+	intro:SetText(descriptions[eventType] or ("Pick a sound for " .. eventName .. "."))
+	local dropY = -102
 	if eventType == "quest" then
 		CreateSoundDropdown(content, "quest", "Quest Turn-In Sound", dropY, "questturnin")
-		CreateSoundDropdown(content, "quest", "Quest Accept Sound", dropY - 70, "questaccept")
-		CreateSoundDropdown(content, "quest", "Quest Complete Sound", dropY - 140, "questcomplete")
-		CreateSoundDropdown(content, "quest", "Quest Progress Sound", dropY - 210, "questprogress")
+		CreateSoundDropdown(content, "quest", "Quest Accept Sound", dropY - 80, "questaccept")
+		CreateSoundDropdown(content, "quest", "Quest Complete Sound", dropY - 160, "questcomplete")
+		CreateSoundDropdown(content, "quest", "Quest Progress Sound", dropY - 240, "questprogress")
 	elseif eventType == "delvecompanion" then
 		CreateSoundDropdown(content, eventType, "Companion Level-Up Sound", dropY)
-		CreateSoundDropdown(content, eventType, "Delve Life Lost Sound", dropY - 70, "delvelifelost")
-		CreateSoundDropdown(content, eventType, "Delve Life Gained Sound", dropY - 140, "delvelifegained")
+		CreateSoundDropdown(content, eventType, "Delve Life Lost Sound", dropY - 80, "delvelifelost")
+		CreateSoundDropdown(content, eventType, "Delve Life Gained Sound", dropY - 160, "delvelifegained")
 	elseif eventType == "achievement" then
 		CreateSoundDropdown(content, eventType, eventName .. " Sound", dropY)
-		CreateSoundDropdown(content, eventType, "Achievement Progress Sound", dropY - 70, "achievementprogress")
+		CreateSoundDropdown(content, eventType, "Achievement Progress Sound", dropY - 80, "achievementprogress")
 	elseif eventType == "battlepet" then
 		CreateSoundDropdown(content, eventType, eventName .. " Level-Up Sound", dropY)
-		CreateSoundDropdown(content, eventType, "Pet Capture Sound", dropY - 70, "petcapture")
+		CreateSoundDropdown(content, eventType, "Pet Capture Sound", dropY - 80, "petcapture")
 	else
 		CreateSoundDropdown(content, eventType, eventName .. " Sound", dropY)
 	end
@@ -981,7 +1002,7 @@ function BLU.CreateHousingPanel(panel)
 	-- Titlebar: icon + title + module toggle
 	local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
 	titleBar:SetPoint("TOPLEFT", 0, 0)
-	titleBar:SetPoint("RIGHT", 0, 0)
+	titleBar:SetPoint("TOPRIGHT", 0, 0)
 	titleBar:SetHeight(44)
 	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
 	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
