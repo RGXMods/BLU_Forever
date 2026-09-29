@@ -157,8 +157,8 @@ function Options:CreateOptionsPanel()
     branding:SetJustifyV("MIDDLE")
 
     local tabContainer = CreateFrame("Frame", nil, container)
-    tabContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -2)
-    tabContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -2)
+    tabContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -12)
+    tabContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -12)
     if Tabs and Tabs.SetContainer then
         Tabs:SetContainer(tabContainer)
     end
@@ -169,17 +169,19 @@ function Options:CreateOptionsPanel()
     tabBg:SetAllPoints()
     tabBg:SetColorTexture(0.03, 0.03, 0.03, 0.6)
 
-    local leftTabGroup = CreateFrame("Frame", nil, tabContainer, "BackdropTemplate")
+    -- No settings box (operator rev 3): tabs render directly on the strip.
+    -- The frame remains only as a layout helper for height tracking.
+    local leftTabGroup = CreateFrame("Frame", nil, tabContainer)
     leftTabGroup:SetPoint("TOPLEFT", tabContainer, "TOPLEFT", 5, -4)
     leftTabGroup:SetSize(100, tabContainerHeight - 8)
-    leftTabGroup:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
-    leftTabGroup:SetBackdropColor(0.06, 0.08, 0.12, 0.95)
-    leftTabGroup:SetBackdropBorderColor(0.15, 0.25, 0.35, 1)
+    leftTabGroup:Hide()
 
     local leftSeparator = tabContainer:CreateTexture(nil, "OVERLAY")
-    leftSeparator:SetSize(2, tabContainerHeight - 12)
-    leftSeparator:SetPoint("TOPLEFT", leftTabGroup, "TOPRIGHT", 5, -2)
-    leftSeparator:SetColorTexture(0.12, 0.16, 0.22, 0.85)
+    leftSeparator:SetSize(1, tabContainerHeight - 12)
+    -- Divider after column 2 (col 2 right edge = 208): separates the
+    -- settings columns from the event columns.
+    leftSeparator:SetPoint("TOPLEFT", tabContainer, "TOPLEFT", 214, -8)
+    leftSeparator:SetColorTexture(0.25, 0.32, 0.40, 0.9)
 
     -- Dynamic reflow: whenever the tab strip's width changes (UI scale,
     -- panel resize), re-wrap the buttons and resize the container and its
@@ -194,7 +196,7 @@ function Options:CreateOptionsPanel()
                 tabContainerHeight = newHeight
                 tabContainer:SetHeight(newHeight)
                 leftTabGroup:SetSize(100, newHeight - 8)
-                leftSeparator:SetSize(2, newHeight - 12)
+                leftSeparator:SetSize(1, newHeight - 12)
             end
         end
     end
@@ -235,11 +237,12 @@ function Options:CreateOptionsPanel()
         panel.tabs[i] = tab
 
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
-        content:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 1, -8)
+        -- Leave room between the tab strip and each page's heading/subtext.
+        content:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 1, -12)
         content:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -7, 8)
         content:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
         content:SetBackdropColor(0.06, 0.06, 0.06, 0.95)
-        content:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+        content:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
         content:Hide()
 
         if tabInfo.greyed and tabInfo.greyedMessage then
@@ -254,10 +257,18 @@ function Options:CreateOptionsPanel()
             greyedMessage:SetJustifyH("LEFT")
         elseif tabInfo.create then
             local success, err = pcall(tabInfo.create, content)
-            if not success then BLU:PrintError("Error creating content for " .. tabInfo.text .. ": " .. tostring(err)) end
+            if not success then
+                BLU:PrintError("Error creating content for " .. tabInfo.text .. ": " .. tostring(err))
+                BLU._panelErrors = BLU._panelErrors or {}
+                BLU._panelErrors[tabInfo.text] = tostring(err)
+            end
         elseif tabInfo.eventType then
             local success, err = pcall(BLU.CreateEventSoundPanel, content, tabInfo.eventType, tabInfo.text)
-            if not success then BLU:PrintError("Error creating event panel for " .. tabInfo.text .. ": " .. tostring(err)) end
+            if not success then
+                BLU:PrintError("Error creating event panel for " .. tabInfo.text .. ": " .. tostring(err))
+                BLU._panelErrors = BLU._panelErrors or {}
+                BLU._panelErrors[tabInfo.text] = tostring(err)
+            end
         elseif tabInfo.placeholder then
             local placeholderMessage = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
             placeholderMessage:SetPoint("TOPLEFT", 18, -18)
@@ -293,10 +304,18 @@ function Options:CreateOptionsPanel()
             -- Greyed-out tabs never rebuild; their message is static
         elseif tabInfo.create then
             local ok, err = pcall(tabInfo.create, content)
-            if not ok then BLU:PrintError("Tab rebuild error: " .. tostring(err)) end
+            if not ok then
+                BLU:PrintError("Tab rebuild error: " .. tostring(err))
+                BLU._panelErrors = BLU._panelErrors or {}
+                BLU._panelErrors[tabInfo.text] = tostring(err)
+            end
         elseif tabInfo.eventType then
             local ok, err = pcall(BLU.CreateEventSoundPanel, content, tabInfo.eventType, tabInfo.text)
-            if not ok then BLU:PrintError("Tab rebuild error: " .. tostring(err)) end
+            if not ok then
+                BLU:PrintError("Tab rebuild error: " .. tostring(err))
+                BLU._panelErrors = BLU._panelErrors or {}
+                BLU._panelErrors[tabInfo.text] = tostring(err)
+            end
         end
     end
 

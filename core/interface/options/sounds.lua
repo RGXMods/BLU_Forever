@@ -77,15 +77,48 @@ function BLU.CreateSoundsPanel(panel)
         child:SetParent(nil)
     end
 
-    local leftColumnWidth = 300
+    local content = CreateFrame("Frame", nil, panel)
+    content:SetPoint("TOPLEFT", 10, -10)
+    content:SetPoint("BOTTOMRIGHT", -10, 10)
+
+	local pageBg = content:CreateTexture(nil, "BACKGROUND")
+	pageBg:SetAllPoints()
+	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+
+	local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
+	titleBar:SetPoint("TOPLEFT", 0, 0)
+	titleBar:SetPoint("TOPRIGHT", 0, 0)
+	titleBar:SetHeight(44)
+	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
+	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
+	titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+
+	local titleIcon = titleBar:CreateTexture(nil, "ARTWORK")
+	titleIcon:SetSize(24, 24)
+	titleIcon:SetPoint("LEFT", 10, 0)
+	titleIcon:SetTexture("Interface\\Icons\\INV_Misc_Bell_01")
+
+	local titleLabel = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	titleLabel:SetPoint("LEFT", titleIcon, "RIGHT", 8, 0)
+	titleLabel:SetText("|cff05dffaSounds|r")
+
+    local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    intro:SetPoint("TOPLEFT", 0, -64)
+    intro:SetPoint("TOPRIGHT", 0, -64)
+    intro:SetJustifyH("LEFT")
+    intro:SetWordWrap(true)
+    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetText("Browse installed sound packs and manage sounds for the active profile.")
+
+    local pageContent = content
 
     local installedPanel = CreateFrame("Frame", nil, panel, "BackdropTemplate")
-    installedPanel:SetPoint("TOPLEFT", 3, -5)
-    installedPanel:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 6, 5)
-    installedPanel:SetWidth(leftColumnWidth + 3)
+    installedPanel:SetPoint("TOPLEFT", pageContent, "TOPLEFT", 0, -102)
+    installedPanel:SetPoint("TOPRIGHT", pageContent, "TOP", -12, -102)
+    installedPanel:SetPoint("BOTTOMLEFT", pageContent, "BOTTOMLEFT", 0, 5)
     installedPanel:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
     installedPanel:SetBackdropColor(0.06, 0.06, 0.06, 0.95)
-    installedPanel:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+    installedPanel:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
 
     local scrollFrame = CreateFrame("ScrollFrame", nil, installedPanel, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT", 8, -8)
@@ -115,11 +148,11 @@ function BLU.CreateSoundsPanel(panel)
 
     local header = BLU.Modules.design:CreateHeader(content, "Installed Sound Packs", "Interface\\Icons\\INV_Misc_Bag_33")
     header:SetPoint("TOPLEFT", 0, 0)
-    header:SetPoint("RIGHT", 0, 0)
+    header:SetPoint("TOPRIGHT", 0, 0)
 
     local headerNote = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     headerNote:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 10, -6)
-    headerNote:SetPoint("RIGHT", content, "RIGHT", -12, 0)
+    headerNote:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", -12, -6)
     headerNote:SetJustifyH("LEFT")
     headerNote:SetWordWrap(true)
     headerNote:SetTextColor(0.78, 0.78, 0.78)
@@ -281,11 +314,12 @@ function BLU.CreateSoundsPanel(panel)
     BLU:PrintDebug("[Options/Sounds] Rendered " .. tostring(#packRows) .. " sound pack entries")
 
     local managerPanel = CreateFrame("Frame", nil, panel, "BackdropTemplate")
-    managerPanel:SetPoint("TOPLEFT", installedPanel, "TOPRIGHT", 8, 0)
-    managerPanel:SetPoint("BOTTOMRIGHT", -8, 5)
+    managerPanel:SetPoint("TOPLEFT", pageContent, "TOP", 12, -102)
+    managerPanel:SetPoint("TOPRIGHT", pageContent, "TOPRIGHT", -10, -102)
+    managerPanel:SetPoint("BOTTOMRIGHT", pageContent, "BOTTOMRIGHT", -10, 5)
     managerPanel:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
     managerPanel:SetBackdropColor(0.06, 0.06, 0.06, 0.95)
-    managerPanel:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+    managerPanel:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
 
     local managerHeader = BLU.Modules.design:CreateHeader(managerPanel, "User Custom Sounds", "Interface\\Icons\\INV_Misc_Coin_18")
     managerHeader:SetPoint("TOPLEFT", 8, -8)
@@ -293,11 +327,11 @@ function BLU.CreateSoundsPanel(panel)
 
     local managerNote = managerPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     managerNote:SetPoint("TOPLEFT", managerHeader, "BOTTOMLEFT", 4, -8)
-    managerNote:SetPoint("RIGHT", managerPanel, "RIGHT", -12, 0)
+    managerNote:SetPoint("TOPRIGHT", managerHeader, "BOTTOMRIGHT", -4, -8)
     managerNote:SetJustifyH("LEFT")
     managerNote:SetWordWrap(true)
     managerNote:SetTextColor(0.78, 0.78, 0.78)
-    managerNote:SetText("Add, review, and remove personal sound files for the active profile. BLU can resolve short file names or full AddOns paths and load the match into User Custom Sounds.")
+    managerNote:SetText("Add .ogg, .mp3, or .wav files from an AddOns sound folder. Enter a filename such as victory.ogg, or paste its full Interface\\AddOns path. These sounds belong to the active profile; select them on an event page after adding them here.")
 
     local addButton = BLU.Modules.design:CreateActionButton(
         managerPanel,
