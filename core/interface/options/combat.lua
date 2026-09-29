@@ -796,21 +796,26 @@ end
 
 	local function CreateCombatRow(parent)
 	local row = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-	row:SetHeight(62)
+	row:SetHeight(68)
 	row:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
 	row:SetBackdropColor(0.08, 0.11, 0.15, 0.92)
 	row:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
 
 	local title = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	title:SetPoint("TOPLEFT", 8, -4)
-	title:SetPoint("RIGHT", -8, 0)
+	title:SetPoint("TOPLEFT", 10, -6)
+	title:SetPoint("TOPRIGHT", row, "TOPRIGHT", -10, -6)
 	title:SetJustifyH("LEFT")
 	title:SetTextColor(1.0, 0.82, 0.18)
 
+	local currentSound = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	currentSound:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -2)
+	currentSound:SetPoint("TOPRIGHT", title, "BOTTOMRIGHT", 0, -2)
+	currentSound:SetTextColor(0.02, 0.87, 0.98)
+
 	local dropdownButton = CreateFrame("Button", nil, row, "BackdropTemplate")
-	dropdownButton:SetPoint("TOPLEFT", row, "TOPLEFT", 8, -22)
-	dropdownButton:SetHeight(20)
-	dropdownButton:SetWidth(136)
+    dropdownButton:SetPoint("TOPLEFT", currentSound, "BOTTOMLEFT", 0, -5)
+    dropdownButton:SetHeight(22)
+    dropdownButton:SetWidth(220)
     dropdownButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
     dropdownButton:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
     dropdownButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
@@ -855,15 +860,12 @@ end
         return row._combatTriggerId
     end)
 
-	local testButton = BLU.Modules.design:CreateActionButton(
+	local testButton = BLU.Modules.design:CreateButton(
 		row,
 		"Test",
-		40,
-		18,
-		"Test Combat Trigger",
-		"Preview the currently selected sound for this trigger."
+		60,
+		22
 	)
-	testButton:SetPoint("TOPRIGHT", row, "TOPRIGHT", -8, -24)
     testButton:SetScript("OnClick", function()
         if row._combatTriggerId then
             PlayCombatTriggerPreview(row._combatTriggerId)
@@ -891,15 +893,17 @@ end
 		volumeControl:ClearAllPoints()
 		testButton:ClearAllPoints()
 
-		dropdownButton:SetPoint("TOPLEFT", row, "TOPLEFT", 8, -22)
-		dropdownButton:SetWidth(136)
+		dropdownButton:SetPoint("LEFT", row, "LEFT", 10, 0)
+		dropdownButton:SetPoint("TOP", currentSound, "BOTTOM", 0, -5)
+		dropdownButton:SetWidth(220)
 
-		testButton:SetPoint("TOPRIGHT", row, "TOPRIGHT", -8, -24)
+		testButton:SetPoint("RIGHT", row, "RIGHT", -10, 0)
+		testButton:SetPoint("TOP", currentSound, "BOTTOM", 0, -5)
 
-	if showVolume then
-		volumeControl:SetPoint("CENTER", dropdownButton, "CENTER", 0, 0)
-		volumeControl:SetPoint("LEFT", dropdownButton, "RIGHT", 8, 0)
-		volumeControl:SetPoint("RIGHT", testButton, "LEFT", -8, 0)
+		if showVolume then
+			volumeControl:SetPoint("CENTER", dropdownButton, "CENTER", 0, 0)
+			volumeControl:SetPoint("LEFT", dropdownButton, "RIGHT", 12, 0)
+			volumeControl:SetPoint("RIGHT", testButton, "LEFT", -12, 0)
 		volumeControl:Show()
 		volumeControl.Refresh()
 		else
@@ -910,6 +914,7 @@ end
 	row.Refresh = function()
 		if not row._combatTriggerId then
 			title:SetText("")
+			currentSound:SetText("")
 			dropdownLabel:SetText("Select Sound")
 			volumeControl:Hide()
 			LayoutControls(false)
@@ -927,7 +932,9 @@ end
 		end
 
 		title:SetText(row._combatTriggerTitle or "")
-		dropdownLabel:SetText(ResolveDisplayText(selectedSound, GetCombatHierarchy()))
+		local displayText = ResolveDisplayText(selectedSound, GetCombatHierarchy())
+		currentSound:SetText(displayText)
+		dropdownLabel:SetText(displayText)
 
 		if showVolume then
 			volumeControl:Show()
@@ -959,6 +966,10 @@ function BLU.CreateCombatPanel(panel)
     content:SetPoint("TOPLEFT", 10, -10)
     content:SetPoint("BOTTOMRIGHT", -10, 10)
 
+    local contentBg = content:CreateTexture(nil, "BACKGROUND")
+    contentBg:SetAllPoints()
+    contentBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+
     local combat = EnsureCombatDB()
     if not combat then
         return
@@ -979,7 +990,7 @@ function BLU.CreateCombatPanel(panel)
 
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
-    title:SetText("|cff05dffaCombat|r")
+    title:SetText("|cff05dffaCombat Sounds|r")
 
     local switchFrame = CreateFrame("Frame", nil, titleBar)
     switchFrame:SetSize(44, 20)
@@ -996,6 +1007,7 @@ function BLU.CreateCombatPanel(panel)
     local toggleBg = toggle:CreateTexture(nil, "ARTWORK")
     toggleBg:SetAllPoints()
     toggleBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    toggleBg:SetVertexColor(1, 1, 1, 1)
 
     local status = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     status:SetPoint("RIGHT", switchFrame, "LEFT", -6, 0)
@@ -1027,44 +1039,19 @@ function BLU.CreateCombatPanel(panel)
 
     RefreshToggle()
 
-    local body = CreateFrame("Frame", nil, content, "BackdropTemplate")
-    body:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -10)
-    body:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, -10)
-    body:SetPoint("BOTTOMLEFT", content, "BOTTOMLEFT", 0, 0)
-    body:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", 0, 0)
-    body:SetBackdrop(BLU.Modules.design.Backdrops.Panel)
-    body:SetBackdropColor(0.03, 0.03, 0.03, 0.6)
-    body:SetBackdropBorderColor(0.1, 0.1, 0.1, 1)
-
-    local triggerArea = CreateFrame("Frame", nil, body)
-    triggerArea:SetPoint("TOPLEFT", body, "TOPLEFT", 6, -6)
-    triggerArea:SetPoint("TOPRIGHT", body, "TOPRIGHT", -6, -6)
-    triggerArea:SetPoint("BOTTOMLEFT", body, "BOTTOMLEFT", 6, 6)
-    triggerArea:SetPoint("BOTTOMRIGHT", body, "BOTTOMRIGHT", -6, 6)
-
-	local triggerHeader = CreateFrame("Frame", nil, triggerArea)
-	triggerHeader:SetPoint("TOPLEFT", triggerArea, "TOPLEFT", 0, 0)
-	triggerHeader:SetPoint("TOPRIGHT", triggerArea, "TOPRIGHT", 0, 0)
-	triggerHeader:SetHeight(18)
+    local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    intro:SetPoint("TOPLEFT", 0, -64)
+    intro:SetPoint("TOPRIGHT", 0, -64)
+    intro:SetJustifyH("LEFT")
+    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetText("Pick a sound for each combat trigger.")
 
 	local triggerRows = {}
-	local rowStartY = -22
-	local rowHeight = 62
-	local rowGap = 4
-
-	for index = 1, 8 do
-		local row = CreateCombatRow(triggerArea)
-		local column = ((index - 1) % 2)
-		local visualRow = math.floor((index - 1) / 2)
-		local y = rowStartY - (visualRow * (rowHeight + rowGap))
-
-		if column == 0 then
-			row:SetPoint("TOPLEFT", triggerArea, "TOPLEFT", 0, y)
-			row:SetPoint("TOPRIGHT", triggerArea, "TOP", -4, y)
-		else
-			row:SetPoint("TOPLEFT", triggerArea, "TOP", 4, y)
-			row:SetPoint("TOPRIGHT", triggerArea, "TOPRIGHT", 0, y)
-		end
+	for index = 1, #(COMBAT_TRIGGER_PAGES[1] or {}) do
+		local row = CreateCombatRow(content)
+		local y = -102 - ((index - 1) * 80)
+		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, y)
+		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -10, y)
 
 		triggerRows[index] = row
     end

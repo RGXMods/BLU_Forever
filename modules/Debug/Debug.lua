@@ -8,17 +8,17 @@ local BLU = _G["BLU"]
 local DebugModule = {}
 
 local DEBUG_SCOPES = {
-    {key = "core",     label = "Core",              description = "Framework, state, slash commands, and generic output."},
-    {key = "options",  label = "Options",           description = "Options panel creation, selection, and layout messages."},
-    {key = "tabs",     label = "Tabs",              description = "Tab hover, click, and positioning output."},
-    {key = "registry", label = "Registry",          description = "Sound selection, playback, and category routing."},
-    {key = "loader",   label = "Loader / Init",     description = "Initialization and module loading flow."},
-    {key = "database", label = "Database / Config", description = "Saved variables, defaults, and config writes."},
-    {key = "profiles", label = "Profiles",          description = "Profile creation, switching, rename, and reset flow."},
-    {key = "modules",  label = "Modules",           description = "Module management and enable / disable state."},
-    {key = "events",   label = "Events / Combat",   description = "Event registration, combat queueing, and timers."},
-    {key = "sounds",   label = "Sounds / Media",    description = "Sound UI, user sounds, SharedMedia, and pack discovery."},
-    {key = "features", label = "Feature Modules",   description = "Quest, Delve, Achievement, Housing, and other gameplay modules."},
+    {key = "core",     label = "Core",              description = "Framework state and slash commands."},
+    {key = "options",  label = "Options",           description = "Options panel creation and layout."},
+    {key = "tabs",     label = "Tabs",              description = "Tab hover, clicks, and positioning."},
+    {key = "registry", label = "Registry",          description = "Sound selection and playback."},
+    {key = "loader",   label = "Loader / Init",     description = "Init and module loading flow."},
+    {key = "database", label = "Database / Config", description = "Saved variables and config writes."},
+    {key = "profiles", label = "Profiles",          description = "Profile switching and management."},
+    {key = "modules",  label = "Modules",           description = "Module enable and disable state."},
+    {key = "events",   label = "Events / Combat",   description = "Event registration and timers."},
+    {key = "sounds",   label = "Sounds / Media",    description = "Sound UI and pack discovery."},
+    {key = "features", label = "Feature Modules",   description = "Quest, event, and feature modules."},
 }
 
 BLU.DebugScopeDefinitions = DEBUG_SCOPES
@@ -138,19 +138,23 @@ local function CreateDebugControls(parent, options)
         RefreshMasterToggle()
     end
 
-    local startY
-    if options.includeMasterToggle == false then
-        startY = -2
-    elseif options.masterToggleInHeader then
-        startY = -4
-    else
-        startY = -30
+    local startY = options.startY
+    if startY == nil then
+        if options.includeMasterToggle == false then
+            startY = -2
+        elseif options.masterToggleInHeader then
+            startY = -4
+        else
+            startY = -30
+        end
     end
-    local leftColumnX = options.leftColumnX or 0
-    local rightColumnX = options.rightColumnX or 260
     local rowStep = options.rowStep or 38
     local detailWidth = options.detailWidth or 200
     local showDescriptions = options.showDescriptions ~= false
+    local centered = options.centerColumns == true
+    local columnGap = options.columnGap or 24
+    local leftColumnX = centered and -(detailWidth + 26 + columnGap / 2) or (options.leftColumnX or 0)
+    local rightColumnX = centered and (columnGap / 2) or (options.rightColumnX or 260)
 
     for index, scopeInfo in ipairs(DEBUG_SCOPES) do
         local column = ((index - 1) % 2)
@@ -160,7 +164,12 @@ local function CreateDebugControls(parent, options)
 
         local tooltipText = showDescriptions and nil or scopeInfo.description
         local checkbox = BLU.Modules.design:CreateCheckbox(content, scopeInfo.label, tooltipText)
-        checkbox:SetPoint("TOPLEFT", x, y)
+        if centered then
+            checkbox:SetPoint("TOPLEFT", content, "TOP", x, y)
+            checkbox:SetWidth(detailWidth + 26)
+        else
+            checkbox:SetPoint("TOPLEFT", x, y)
+        end
         checkbox.check:SetChecked(profile.debugScopes[scopeInfo.key] ~= false)
         checkbox.check:SetScript("OnClick", function(self)
             profile.debugScopes[scopeInfo.key] = self:GetChecked()
@@ -189,9 +198,14 @@ function BLU.CreateDebugPanel(panel)
     content:SetPoint("TOPLEFT", 10, -10)
     content:SetPoint("BOTTOMRIGHT", -10, 10)
 
+	local pageBg = content:CreateTexture(nil, "BACKGROUND")
+	pageBg:SetAllPoints()
+	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+
+
     local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
     titleBar:SetPoint("TOPLEFT", 0, 0)
-    titleBar:SetPoint("RIGHT", 0, 0)
+    titleBar:SetPoint("TOPRIGHT", 0, 0)
     titleBar:SetHeight(44)
     titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
     titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
@@ -206,12 +220,20 @@ function BLU.CreateDebugPanel(panel)
     title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
     title:SetText("|cff05dffaDebug Options|r")
 
+    local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    intro:SetPoint("TOPLEFT", 0, -64)
+    intro:SetPoint("TOPRIGHT", 0, -64)
+    intro:SetJustifyH("LEFT")
+    intro:SetWordWrap(true)
+    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetText("Choose which diagnostic messages BLU prints to chat.")
+
     local status = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     status:SetPoint("RIGHT", titleBar, "RIGHT", -60, 0)
 
     if not EnsureDebugDefaults() then
         local unavailable = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        unavailable:SetPoint("TOPLEFT", 0, -12)
+        unavailable:SetPoint("TOPLEFT", 0, -102)
         unavailable:SetText("|cffff6666Database not ready. Reopen this tab in a moment.|r")
         return
     end
@@ -241,12 +263,15 @@ function BLU.CreateDebugPanel(panel)
 
     local scopesSection = CreateDebugControls(content, {
         includeMasterToggle = false,
-        height = 320,
-        title = nil,
-        rowStep = 50,
+        height = 304,
+        startY = -10,
+        title = "Debug Scopes",
+        icon = "Interface\\Icons\\INV_Misc_Gear_03",
+        rowStep = 40,
+        centerColumns = true,
     })
-    scopesSection:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -10)
-    scopesSection:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, -10)
+    scopesSection:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -48)
+    scopesSection:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", -10, -48)
 end
 
 function DebugModule:Init()

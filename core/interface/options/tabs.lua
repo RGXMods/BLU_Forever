@@ -18,6 +18,9 @@ local TAB_SPACING = 6
 local TAB_ROW_PADDING = 8
 local TAB_ROW_SPACING = 3
 local TAB_COLUMNS_PER_ROW = 6
+-- Section gap: event columns (col >= 3) shift right so the 1px divider
+-- has symmetric breathing room on both sides (settings | pipe | events).
+local TAB_SECTION_GAP = 6
 
 local function GetTabRowWidth()
     -- 1 core column + 5 wide columns + spacing + 16px gutter
@@ -42,46 +45,41 @@ end
 --
 -- The legacy per-button math in UpdatePosition was:
 --   col 1: x = 8,  width 94
---   col>1: x = 8 + 94 + 16 + (col-2)*(100+6) = 118 + (col-2)*106, width 100
+--   col>1: x = 8 + 94 + 6 + (col-2)*(100+6) = 108 + (col-2)*106, width 100
 -- so buttons sit at x = 8, 118, 224, 330, ... The gap after the CORE button
 -- is a 16px gutter; every later WIDE button is 6px after the previous one.
 -- The dynamic pass reproduces exactly this sequence and wraps to the next
 -- row (same left edge and spacing) when the next button would not fit at
 -- the container's current width.
 
--- Compute the dynamic layout for the live spec at a given container width.
--- Returns a table: { buttons = {{index, x, y, width, row}, ...}, rows = N }
+-- Compute the layout for the live spec. The spec's row/col fields are the
+-- authoritative fixed-grid geometry (operator review 2026-09-28 rev 3: BLU's
+-- original column/row alignment, with rows subtracted to two and tabs
+-- shifted — no custom flow, no adaptive widths):
+--   col 1: x = 8,    width = CORE (94)
+--   col>1: x = 118 + (col-2) * 106, width = WIDE (100)
+--   row r: y = -6 - (r-1) * 25
 -- Buttons hidden by the flavors hook (hidden = true) are skipped.
 local function ComputeTabLayout(containerWidth)
     local layout = { buttons = {}, rows = 1 }
-    if not BLU.OptionsTabs or containerWidth == nil or containerWidth <= 0 then
+    if not BLU.OptionsTabs then
         return layout
     end
-
-    local row = 1
-    local prevRight = nil
-    local prevWidth = nil
-
+    local maxRow = 1
     for index, tabInfo in ipairs(BLU.OptionsTabs) do
         if not tabInfo.hidden then
-            local width
-            local x
-            if prevRight == nil then
-                -- first button on this row: CORE width at the left padding
+            local col = tonumber(tabInfo.col) or 1
+            local row = tonumber(tabInfo.row) or 1
+            local x, width
+            if col <= 1 then
                 x = TAB_ROW_PADDING
                 width = TAB_BUTTON_WIDTH_CORE
             else
-                -- gap after a CORE button is the legacy 16px gutter,
-                -- gap after a WIDE button is the normal 6px spacing
-                local gap = (prevWidth == TAB_BUTTON_WIDTH_CORE) and 16 or TAB_SPACING
-                x = prevRight + gap
-                width = TAB_BUTTON_WIDTH_WIDE
-                -- Wrap: does this WIDE button fit at the container's width?
-                if x + width > containerWidth then
-                    row = row + 1
-                    x = TAB_ROW_PADDING
-                    width = TAB_BUTTON_WIDTH_CORE
+                x = TAB_ROW_PADDING + TAB_BUTTON_WIDTH_CORE + TAB_SPACING + (col - 2) * (TAB_BUTTON_WIDTH_WIDE + TAB_SPACING)
+                if col >= 3 then
+                    x = x + TAB_SECTION_GAP
                 end
+                width = TAB_BUTTON_WIDTH_WIDE
             end
             local y = -6 - (row - 1) * (TAB_BUTTON_HEIGHT + TAB_ROW_SPACING)
             layout.buttons[#layout.buttons + 1] = {
@@ -91,12 +89,12 @@ local function ComputeTabLayout(containerWidth)
                 width = width,
                 row = row,
             }
-            prevRight = x + width
-            prevWidth = width
+            if row > maxRow then
+                maxRow = row
+            end
         end
     end
-
-    layout.rows = row
+    layout.rows = maxRow
     return layout
 end
 
@@ -213,9 +211,13 @@ local function CreateComingSoonPanel(panel, tabName)
     content:SetPoint("TOPLEFT", 10, -10)
     content:SetPoint("BOTTOMRIGHT", -10, 10)
 
+	local pageBg = content:CreateTexture(nil, "BACKGROUND")
+	pageBg:SetAllPoints()
+	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+
     local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
     titleBar:SetPoint("TOPLEFT", 0, 0)
-    titleBar:SetPoint("RIGHT", 0, 0)
+    titleBar:SetPoint("TOPRIGHT", 0, 0)
     titleBar:SetHeight(44)
     titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
     titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
@@ -228,11 +230,92 @@ local function CreateComingSoonPanel(panel, tabName)
 
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
-    title:SetText("|cff05dffa" .. tabName .. "|r")
+    title:SetText("|cff05dffa" .. tabName .. " Sounds|r")
+
+    if tabName == "Loot" then
+        local switchFrame = CreateFrame("Frame", nil, titleBar)
+        switchFrame:SetSize(44, 20)
+        switchFrame:SetPoint("RIGHT", -10, 0)
+
+        local switchBg = switchFrame:CreateTexture(nil, "BACKGROUND")
+        switchBg:SetAllPoints()
+        switchBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+        switchBg:SetVertexColor(0.3, 0.3, 0.3, 1)
+
+        local toggle = CreateFrame("Button", nil, switchFrame)
+        toggle:SetSize(18, 18)
+        toggle:SetPoint("LEFT", switchFrame, "LEFT", 1, 0)
+        local toggleBg = toggle:CreateTexture(nil, "ARTWORK")
+        toggleBg:SetAllPoints()
+        toggleBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+        toggleBg:SetVertexColor(0.6, 0.6, 0.6, 1)
+        toggle:Disable()
+
+        local status = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        status:SetPoint("RIGHT", switchFrame, "LEFT", -6, 0)
+        status:SetText("|cffaaaaaaSOON|r")
+    end
+
+    local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    intro:SetPoint("TOPLEFT", 0, -64)
+    intro:SetPoint("TOPRIGHT", 0, -64)
+    intro:SetJustifyH("LEFT")
+    intro:SetWordWrap(true)
+    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetText(tabName == "Loot"
+        and "Preview the planned loot triggers. Sound selection is not available yet."
+        or cfg.body)
+
+    if tabName == "Loot" then
+        local labels = { "Rare Drop Sound", "Boss Loot Sound", "Item Pickup Sound" }
+        for index, label in ipairs(labels) do
+            local row = CreateFrame("Frame", nil, content, "BackdropTemplate")
+            local y = -102 - ((index - 1) * 80)
+            row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, y)
+            row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -10, y)
+            row:SetHeight(68)
+            row:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
+            row:SetBackdropColor(0.08, 0.11, 0.15, 0.92)
+            row:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+
+            local rowTitle = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            rowTitle:SetPoint("TOPLEFT", 10, -6)
+            rowTitle:SetTextColor(1.0, 0.82, 0.18)
+            rowTitle:SetText(label)
+
+            local rowStatus = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+            rowStatus:SetPoint("TOPLEFT", rowTitle, "BOTTOMLEFT", 0, -2)
+            rowStatus:SetPoint("TOPRIGHT", rowTitle, "BOTTOMRIGHT", 0, -2)
+            rowStatus:SetJustifyH("LEFT")
+            rowStatus:SetTextColor(0.02, 0.87, 0.98)
+            rowStatus:SetText("Coming soon")
+
+            local selectButton = CreateFrame("Button", nil, row, "BackdropTemplate")
+            selectButton:SetPoint("LEFT", row, "LEFT", 10, 0)
+            selectButton:SetPoint("TOP", rowStatus, "BOTTOM", 0, -5)
+            selectButton:SetSize(220, 22)
+            selectButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
+            selectButton:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
+            selectButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+            selectButton:EnableMouse(false)
+
+            local buttonText = selectButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            buttonText:SetPoint("LEFT", 8, 0)
+            buttonText:SetTextColor(0.6, 0.66, 0.72)
+            buttonText:SetText("Not available yet")
+
+            local testBtn = BLU.Modules.design:CreateButton(row, "Test", 60, 22)
+            testBtn:SetPoint("RIGHT", row, "RIGHT", -10, 0)
+            testBtn:SetPoint("TOP", rowStatus, "BOTTOM", 0, -5)
+            testBtn:Disable()
+            if testBtn.label then testBtn.label:SetTextColor(0.6, 0.66, 0.72) end
+        end
+        return
+    end
 
     local section = BLU.Modules.design:CreateSection(content, "Coming Soon", "Interface\\Icons\\INV_Misc_Note_05")
-    section:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -10)
-    section:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, -10)
+    section:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -58)
+    section:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", -10, -58)
     section:SetHeight(100)
 
     local body = section.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -243,10 +326,16 @@ local function CreateComingSoonPanel(panel, tabName)
     body:SetText(cfg.body)
 end
 
+-- Inactive layout prototype. The Combat tab below uses BLU.CreateCombatPanel
+-- from combat.lua; make live Combat layout changes there.
 local function CreateCombatPrototypePanel(panel)
     local content = CreateFrame("Frame", nil, panel)
     content:SetPoint("TOPLEFT", 10, -10)
     content:SetPoint("BOTTOMRIGHT", -10, 10)
+
+	local pageBg = content:CreateTexture(nil, "BACKGROUND")
+	pageBg:SetAllPoints()
+	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
 
     BLU._combatTabState = BLU._combatTabState or {page = 1}
     local state = BLU._combatTabState
@@ -254,7 +343,7 @@ local function CreateCombatPrototypePanel(panel)
 
     local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
     titleBar:SetPoint("TOPLEFT", 0, 0)
-    titleBar:SetPoint("RIGHT", 0, 0)
+    titleBar:SetPoint("TOPRIGHT", 0, 0)
     titleBar:SetHeight(44)
     titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
     titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
@@ -270,8 +359,8 @@ local function CreateCombatPrototypePanel(panel)
     title:SetText("|cff05dffaCombat|r")
 
     local introSection = BLU.Modules.design:CreateSection(content, "Combat Prototype", "Interface\\Icons\\INV_Misc_Note_05")
-    introSection:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -10)
-    introSection:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, -10)
+    introSection:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -20)
+    introSection:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, -20)
     introSection:SetHeight(78)
 
     local intro = introSection.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -463,12 +552,19 @@ local function CreateCombatPrototypePanel(panel)
     local topGrid = CreateFrame("Frame", nil, content)
     topGrid:SetPoint("TOPLEFT", introSection, "BOTTOMLEFT", 0, -10)
     topGrid:SetPoint("TOPRIGHT", introSection, "BOTTOMRIGHT", 0, -10)
-    topGrid:SetHeight(214)
+    -- Single-column stack (operator 2026-09-28): Cues on top, Music below.
+    topGrid:SetHeight(378)
 
     local cuesSection = BLU.Modules.design:CreateSection(topGrid, "Combat Cues", "Interface\\Icons\\Ability_Rogue_Sprint")
+    --[[
+    -- Former side-by-side anchors (preserved, not active):
     cuesSection:SetPoint("TOPLEFT", 0, 0)
     cuesSection:SetPoint("BOTTOMLEFT", 0, 0)
     cuesSection:SetPoint("RIGHT", topGrid, "CENTER", -5, 0)
+    ]]
+    cuesSection:SetPoint("TOPLEFT", 0, 0)
+    cuesSection:SetPoint("TOPRIGHT", 0, 0)
+    cuesSection:SetHeight(208)
 
     local cuesNote = cuesSection.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     cuesNote:SetPoint("TOPLEFT", 4, -4)
@@ -501,8 +597,14 @@ local function CreateCombatPrototypePanel(panel)
     cueEndRow:SetPoint("RIGHT", cuesSection.content, "RIGHT", -4, 0)
 
     local musicSection = BLU.Modules.design:CreateSection(topGrid, "Combat Music", "Interface\\Icons\\INV_Misc_Bag_10_Black")
+    --[[
+    -- Former side-by-side anchors (preserved, not active):
     musicSection:SetPoint("TOPLEFT", topGrid, "TOP", 5, 0)
     musicSection:SetPoint("BOTTOMRIGHT", topGrid, "BOTTOMRIGHT", 0, 0)
+    ]]
+    musicSection:SetPoint("TOPLEFT", cuesSection, "BOTTOMLEFT", 0, -10)
+    musicSection:SetPoint("TOPRIGHT", cuesSection, "BOTTOMRIGHT", 0, -10)
+    musicSection:SetHeight(160)
 
     local musicNote = musicSection.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     musicNote:SetPoint("TOPLEFT", 4, -4)
@@ -542,7 +644,7 @@ local function CreateCombatPrototypePanel(panel)
     futureNote:SetJustifyH("LEFT")
     futureNote:SetWordWrap(true)
     futureNote:SetTextColor(0.78, 0.82, 0.88)
-    futureNote:SetText("This area is for the broader combat-trigger catalog. It keeps the compact 2-column layout so we can test fitting up to 8 options on a single page.")
+    futureNote:SetText("This area is for the broader combat-trigger catalog, laid out as a single column so each option gets the full row.")
 
     local pageLabel = futureSection.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     pageLabel:SetPoint("TOPRIGHT", -126, -6)
@@ -576,12 +678,16 @@ local function CreateCombatPrototypePanel(panel)
     local columnGap = 10
     local columnWidth = 0
 
+    -- Single-column page (operator 2026-09-28). The former 2-column mock
+    -- grid is preserved below as comments for future use.
     for index = 1, 8 do
+        --[[
         local visualRow = math.floor((index - 1) / 2)
+        ]]
         local row = CreateCompactMockRow(
             rowAnchorParent,
             0,
-            rowStartY - (visualRow * (rowHeight + rowGap)),
+            rowStartY - ((index - 1) * (rowHeight + rowGap)),
             "",
             "BLU Defaults",
             "Medium",
@@ -599,16 +705,27 @@ local function CreateCombatPrototypePanel(panel)
             availableWidth = panel:GetWidth() or 640
         end
 
+        -- Two-column mode (preserved, not active; operator 2026-09-28):
+        --[[
         columnWidth = math.floor((availableWidth - columnGap) / 2)
         if columnWidth < 260 then
             columnWidth = 260
         end
-
         for index, row in ipairs(triggerRows) do
             local column = ((index - 1) % 2)
             local xOffset = column == 0 and 0 or (columnWidth + columnGap)
             row.frame:ClearAllPoints()
             row.frame:SetPoint("TOPLEFT", xOffset, rowStartY - (math.floor((index - 1) / 2) * (rowHeight + rowGap)))
+            row.frame:SetWidth(columnWidth)
+        end
+        ]]
+        columnWidth = availableWidth
+        if columnWidth < 260 then
+            columnWidth = 260
+        end
+        for index, row in ipairs(triggerRows) do
+            row.frame:ClearAllPoints()
+            row.frame:SetPoint("TOPLEFT", 0, rowStartY - ((index - 1) * (rowHeight + rowGap)))
             row.frame:SetWidth(columnWidth)
         end
     end
@@ -696,7 +813,7 @@ function Tabs:GetRowCount()
 end
 
 function Tabs:GetContainerHeight()
-    return 6 + (self:GetRowCount() * TAB_BUTTON_HEIGHT) + ((self:GetRowCount() - 1) * TAB_ROW_SPACING) + 6
+    return 10 + (self:GetRowCount() * TAB_BUTTON_HEIGHT) + ((self:GetRowCount() - 1) * TAB_ROW_SPACING) + 6
 end
 
 -- Wire the strip's container frame. Called by CreateOptionsPanel after the
@@ -762,7 +879,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
         if self.tabCol == 1 then
             return TAB_ROW_PADDING, TAB_BUTTON_WIDTH_CORE
         end
-        return TAB_ROW_PADDING + TAB_BUTTON_WIDTH_CORE + 16 + (self.tabCol - 2) * (TAB_BUTTON_WIDTH_WIDE + TAB_SPACING),
+        return TAB_ROW_PADDING + TAB_BUTTON_WIDTH_CORE + TAB_SPACING + (self.tabCol - 2) * (TAB_BUTTON_WIDTH_WIDE + TAB_SPACING),
             TAB_BUTTON_WIDTH_WIDE
     end
 
@@ -774,7 +891,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
             xOffset, width = legacyPosition(self)
         end
         local layoutRow = self.tabLayoutRow or self.tabRow or 1
-        local yOffset = -6 - (layoutRow - 1) * (TAB_BUTTON_HEIGHT + TAB_ROW_SPACING)
+        local yOffset = -10 - (layoutRow - 1) * (TAB_BUTTON_HEIGHT + TAB_ROW_SPACING)
         self:SetWidth(width)
         self:ClearAllPoints()
         self:SetPoint("TOPLEFT", parent, "TOPLEFT", xOffset, yOffset)
@@ -907,24 +1024,26 @@ function Tabs:Init()
     local function preyPanel(p)         CreateComingSoonPanel(p, "Prey")         end
 
     BLU.OptionsTabs = {
-        -- Forever build: only the tabs this client can fire, and no
-        -- placeholder/sentinel rows. Core column first, two feature columns.
+        -- Operator manual sorting (2026-09-28, rev 4): fixed grid, rows
+        -- subtracted to 2. Column 1: General/Profiles. Column 2:
+        -- Debug (row 1) with Sounds directly below (row 2). Events in
+        -- columns 3-6 with Legacy (the API achievement system) in row 1
+        -- column 6, Loot before Honor in row 2. No box; divider after
+        -- column 2.
         -- Row 1
         {text = "General",     create = BLU.CreateGeneralPanel,  row = 1, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_08"},
-        {text = "Level Up",    eventType = "levelup",            row = 1, col = 2, feature = "levelup",     icon = "Interface\\Icons\\Achievement_Level_100"},
-        {text = "Combat",      create = combatPanel,             row = 1, col = 3, feature = "combat",      icon = "Interface\\Icons\\Ability_Warrior_Charge"},
+        {text = "Profiles",    create = BLU.CreateProfilesPanel, row = 1, col = 2, icon = "Interface\\Icons\\Ability_Marksmanship"},
+        {text = "Level Up",    eventType = "levelup",            row = 1, col = 3, feature = "levelup",     icon = "Interface\\Icons\\Achievement_Level_100"},
+        {text = "Quest",       eventType = "quest",              row = 1, col = 4, feature = "quest",       icon = "Interface\\Icons\\INV_Misc_Note_01"},
+        {text = "Combat",      create = combatPanel,             row = 1, col = 5, feature = "combat",      icon = "Interface\\Icons\\Ability_Warrior_Charge"},
+        {text = "Legacy",      eventType = "achievement",        row = 1, col = 6, feature = "achievement",  icon = "Interface\\Icons\\Achievement_Quests_Completed_08"},
         -- Row 2
-        {text = "Debug",       create = BLU.CreateDebugPanel,    row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
-        {text = "Quest",       eventType = "quest",              row = 2, col = 2, feature = "quest",       icon = "Interface\\Icons\\INV_Misc_Note_01"},
-        {text = "Collectibles",create = collectiblesPanel,       row = 2, col = 3, feature = "collectibles",icon = "Interface\\Icons\\INV_Misc_Toy_07"},
-        -- Row 3
-        {text = "Profiles",    create = BLU.CreateProfilesPanel, row = 3, col = 1, icon = "Interface\\Icons\\Ability_Marksmanship"},
-        {text = "Reputation",  eventType = "reputation",         row = 3, col = 2, feature = "reputation",  icon = "Interface\\Icons\\Achievement_Reputation_01"},
-        {text = "Loot",        create = lootPanel,               row = 3, col = 3, feature = "loot",        icon = "Interface\\Icons\\INV_Misc_Coin_02"},
-        -- Row 4
-        {text = "Sounds",      create = BLU.CreateSoundsPanel,   row = 4, col = 1, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
-        {text = "Honor",       eventType = "honorrank",          row = 4, col = 2, feature = "honorrank",   icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
-        {text = "Hardcore",    create = BLU.CreateHardcorePanel, row = 4, col = 3, feature = "hardcore",    icon = "Interface\\Icons\\INV_Misc_Bone_HumanSkull"},
+        {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
+        {text = "Sounds",      create = BLU.CreateSoundsPanel,   row = 2, col = 2, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
+        {text = "Reputation",  eventType = "reputation",         row = 2, col = 3, feature = "reputation",  icon = "Interface\\Icons\\Achievement_Reputation_01"},
+        {text = "Loot",         create = lootPanel,               row = 2, col = 4, feature = "loot",        icon = "Interface\\Icons\\INV_Misc_Coin_02"},
+        {text = "Honor",        eventType = "honorrank",          row = 2, col = 5, feature = "honorrank",   icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
+        {text = "Hardcore",    create = BLU.CreateHardcorePanel, row = 2, col = 6, feature = "hardcore",    icon = "Interface\\Icons\\Spell_Shadow_AnimateDead"},
     }
 
     if BLU.Modules.flavors and BLU.Modules.flavors.ApplyToTabSpec then

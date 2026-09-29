@@ -25,7 +25,7 @@ local FEATURE_COMPAT = {
     collectibles = { retail = true, mists = true, era = true, forever = true },
     hardcore    = { retail = true, mists = true, era = true, forever = true },
 
-    achievement  = { retail = true, mists = true },
+    achievement  = { retail = true, mists = true, forever = true },
     battlepet    = { retail = true, mists = true },
     delve        = { retail = true },
     housing      = { retail = true },

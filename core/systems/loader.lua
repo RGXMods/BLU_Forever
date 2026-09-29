@@ -38,6 +38,7 @@ local moduleRegistry = {
         quest = "quest",
         honor = "honor",
         hardcore = "hardcore",
+        achievement = "achievement",
 
         -- UI/event aliases mapped to concrete module ids.
         honorrank = "honor",

@@ -348,7 +348,7 @@ end
 
 function Design:CreateSection(parent, title, icon)
     local section = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-    self:ApplyBackdrop(section, "Panel", {0.03, 0.03, 0.03, 0.6}, {0.1, 0.1, 0.1, 1})
+    self:ApplyBackdrop(section, "Panel", {0.03, 0.03, 0.03, 0.6}, {0.14, 0.20, 0.28, 1})
     
     if title then
         local header = self:CreateHeader(section, title, icon)
