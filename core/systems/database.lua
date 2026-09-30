@@ -50,9 +50,9 @@ function Database:Init()
  end
  BLU.db:OnProfileChanged(onProfileSwitch)
  else
- BLU.db = RGX:NewDatabase("BLUDB", getProfileDefaults(), {
- onSwitch = onProfileSwitch,
- })
+  BLU.db = RGX:NewDatabase("BLUForeverDB", getProfileDefaults(), {
+  onSwitch = onProfileSwitch,
+  })
  end
 
  BLU:PrintDebug("Database module initialized. BLU.db is " .. tostring(BLU.db))
