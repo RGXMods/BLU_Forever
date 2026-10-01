@@ -1,3 +1,10 @@
+# v1.1.3-beta.37 - Unreleased test build
+
+## Changes
+- Match framework bootstrap ownership to the actual BLU_Forever addon name.
+- Register late-loaded profile defaults on the existing framework DB owner, preserving saved values across switch/reset/reload.
+- Test alongside the paired framework slider/control persistence fixes; no release tag created.
+
 # v1.1.3-beta.36 - 2026-09-29
 
 ## Changes
