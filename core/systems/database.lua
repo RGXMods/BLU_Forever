@@ -43,12 +43,16 @@ function Database:Init()
     -- RGX.Addon() in core.lua may have already created BLU.db.  If so,
     -- merge BLU defaults and wire profile-switch callbacks.  If not,
     -- create the proxy here (backward compat / load-order safety).
- if BLU.db then
- local profile = BLU.db:GetProfile()
+  if BLU.db then
+  BLU.db:OnProfileChanged(onProfileSwitch)
+  if type(BLU.db.RegisterDefaults) == "function" then
+  BLU.db:RegisterDefaults(getProfileDefaults())
+  else
+  local profile = BLU.db:GetProfile()
  if profile then
  RGX:MergeTable(profile, getProfileDefaults())
  end
- BLU.db:OnProfileChanged(onProfileSwitch)
+  end
  else
   BLU.db = RGX:NewDatabase("BLUForeverDB", getProfileDefaults(), {
   onSwitch = onProfileSwitch,
