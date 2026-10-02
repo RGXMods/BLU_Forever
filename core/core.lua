@@ -30,11 +30,12 @@ end
 -- ── Bootstrap via RGX-Framework ──────────────────────────────────────────────
 
 if RGX and type(RGX.Addon) == "function" then
-    local ok, addonOrErr = pcall(RGX.Addon, "BLU", {
+    local ok, addonOrErr = pcall(RGX.Addon, addonName, {
         db      = true,
         dbName  = "BLUForeverDB",
         slash   = "blu",
-        minimap = ADDON_PATH .. "media\\Textures\\icon.tga",
+        -- core/interface/minimap.lua owns the single profile-bound button.
+        minimap = false,
         brand   = "05dffa",
         onInit  = function(self)
             self:ShowWelcomeMessage()
@@ -51,7 +52,7 @@ end
 if not BLU then
     BLU = {
         name = addonName,
-        version = "v1.1.3-beta.36",
+        version = "v1.1.3-beta.37",
         Modules = {},
         LoadedModules = {},
         events = {},
