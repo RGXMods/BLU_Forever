@@ -9,7 +9,7 @@ local BLU = _G["BLU"]
 local Minimap = {}
 BLU.Modules["minimap"] = Minimap
 
-local MINIMAP_ICON_TEXTURE = "Interface\\AddOns\\BLU_Forever\\media\\Textures\\icon.tga"
+local MINIMAP_ICON_TEXTURE = "Interface\\AddOns\\RGX-Framework\\media\\round.tga"
 local CHAT_PREFIX = "|cff00ccffBLU:|r"
 
 -- Proxy so the framework button reads and writes the active profile even

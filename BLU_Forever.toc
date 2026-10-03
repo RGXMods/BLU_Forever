@@ -9,6 +9,6 @@
 ## DefaultState: Enabled
 ## SavedVariables: BLUForeverDB
 ## X-Curse-Project-ID: 1712132
-## IconTexture: Interface\AddOns\BLU_Forever\media\Textures\icon.tga
+## IconTexture: Interface\AddOns\RGX-Framework\media\square.tga
 
 BLU_Forever.xml
