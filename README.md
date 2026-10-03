@@ -1,6 +1,6 @@
 # BLU | Better Level-Up! (Forever)
 
-|cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r |cff05dffaU|r|cffffffffp|r! (Forever) is the WoW Forever (Classic beta, Interface 16001) build of BLU: replacement sounds for the level-up moments that matter, powered by [RGX-Framework](https://github.com/RGXMods/RGX-Framework). Everything that cannot exist on the Forever client has been removed — this build ships only what the game can fire.
+Better Level-Up! (Forever) is the WoW Forever (Classic beta, Interface 16001) build of BLU: replacement sounds for the level-up moments that matter, powered by [RGX-Framework](https://github.com/RGXMods/RGX-Framework). Everything that cannot exist on the Forever client has been removed — this build ships only what the game can fire.
 
 ## Features
 
@@ -9,7 +9,7 @@
 - **Reputation sounds** — rank-up triggers for faction grinds.
 - **Honor rank sounds** — PvP rank progression triggers on the classic honor system.
 - **Combat triggers** — Bloodlust/Heroism and proc-style combat cues through the RGXCombat integration.
-- **Collections tab** � collectible milestone triggers (mounts, pets, toys, transmog) are reserved for the Forever client's Collections system.
+- **Collections tab** — collectible milestone triggers (mounts, pets, toys, transmog) are reserved for the Forever client's Collections system.
 - **Minimap button** — left-click opens the options panel; drag to reposition; Ctrl+Right-click hides it (`/blu icon on` restores).
 - **Full options panel** — General, Combat, Honor, Level Up, Loot, Quest, Reputation, Profiles, and Sounds tabs with profile support.
 - **Custom sounds** — add your own .ogg files, or choose from the bundled BLU defaults and shared-media packs.
@@ -40,7 +40,7 @@ Settings are stored in `BLUForeverDB` with full profile support (Profiles tab).
 
 ## Compatibility
 
-- WoW Forever beta (Interface 16001). Retail BLU remains theRetail/`120100` build; Classic flavors are covered by BLU_Classic.
+- WoW Forever beta (Interface 16001). Retail BLU remains the Retail/`120100` build; Classic flavors are covered by BLU_Classic.
 
 ## Support
 
