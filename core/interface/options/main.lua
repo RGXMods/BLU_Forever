@@ -110,7 +110,7 @@ function Options:CreateOptionsPanel()
     local logo = header:CreateTexture(nil, "ARTWORK")
     logo:SetSize(28, 28)
     logo:SetPoint("LEFT", 10, 0)
-    logo:SetTexture("Interface\\AddOns\\RGX-Framework\\media\\square.tga")
+    logo:SetTexture(ADDON_PATH .. "media\\Textures\\icon.tga")
 
     local leftX = 50
     local rightX = -15
