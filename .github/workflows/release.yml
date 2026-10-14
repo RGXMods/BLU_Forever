@@ -162,7 +162,7 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-          bullet_lines="$(echo "$changelog_content" | grep -E '^[-*]|^\*\*' | head -20 | sed 's/^\*\*[^*]*\*\*[[:space:]]*//' )"
+          bullet_lines="$(echo "$changelog_content" | grep -E '^[-*]|^\*\*' | head -20 | sed 's/^\*\*[^*]*\*\*[[:space:]]*//' || true)"
           if ((${#bullet_lines} > 980)); then
             bullet_lines="${bullet_lines:0:977}..."
           fi
