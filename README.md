@@ -45,3 +45,7 @@ Settings are stored in `BLUForeverDB` with full profile support (Profiles tab).
 ## Support
 
 Part of the [RealmGX](https://realmgx.com) community project. Join us at discord.gg/N7kdKAHVVF.
+
+## Development
+
+Development on this addon is framework-first: run the RGX-Framework MCP tool loop and honor the declarative contract before writing code. See [docs/AGENT-DIRECTIVES.md](docs/AGENT-DIRECTIVES.md) for the workflow and [AGENTS.md](AGENTS.md) for the runtime facts and validation rules it enforces.
