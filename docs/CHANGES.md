@@ -1,3 +1,9 @@
+# v1.1.3 - 2026-10-13
+
+- Promote the player-tested `v1.1.3-beta.38` build to stable.
+- Keep the Forever-only feature inventory, layout, saved settings, and distribution IDs unchanged.
+- No functional changes from the tested beta.38 runtime.
+
 # v1.1.3-beta.37 - Unreleased test build
 
 ## Changes
