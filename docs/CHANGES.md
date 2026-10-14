@@ -1,3 +1,9 @@
+# v1.1.4 - 2026-10-13
+
+- Republish the promoted stable with a release-compatible changelog file.
+- Version line only; the runtime remains the player-tested `v1.1.3-beta.38` build.
+- Harden the release workflow so a changelog without bullet lines can no longer fail publication.
+
 # v1.1.3 - 2026-10-13
 
 - Promote the player-tested `v1.1.3-beta.38` build to stable.
