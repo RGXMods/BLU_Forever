@@ -1,6 +1,6 @@
 # BLU | Better Level-Up! (Forever)
 
-|cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r |cff05dffaU|r|cffffffffp|r! (Forever) is the WoW Forever (Classic beta, Interface 16001) build of BLU: replacement sounds for the level-up moments that matter, powered by [RGX-Framework](https://github.com/RGXMods/RGX-Framework). Everything that cannot exist on the Forever client has been removed — this build ships only what the game can fire.
+|cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r|cff05dffaU|r|cffffffffp|r! (Forever) is the WoW Forever (Classic beta, Interface 16001) build of BLU: replacement sounds for the level-up moments that matter, powered by [RGX-Framework](https://github.com/RGXMods/RGX-Framework). Everything that cannot exist on the Forever client has been removed — this build ships only what the game can fire.
 
 ## Features
 

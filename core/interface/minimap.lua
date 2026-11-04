@@ -49,7 +49,7 @@ function Minimap:Init()
         angleKey = "minimapAngle",
         enabledKey = "minimapIconEnabled",
         tooltip = {
-            title = "|cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r |cff05dffaU|r|cffffffffp|r|cff05dffa!|r",
+            title = "|cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r|cff05dffaU|r|cffffffffp|r|cff05dffa!|r",
             getLines = function()
                 local enabled = BLU.db and BLU.db.enabled ~= false
                 return {
