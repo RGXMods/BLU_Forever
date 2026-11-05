@@ -42,6 +42,12 @@ local moduleRegistry = {
 
         -- UI/event aliases mapped to concrete module ids.
         honorrank = "honor",
+        honorgain = "honor",
+        pvpvictory = "honor",
+        loot = "loot",
+        collectibles = "collectibles",
+        lootitem = "loot",
+        appearance = "collectibles",
         questaccept = "quest",
         questcomplete = "quest",
         questturnin = "quest",
