@@ -182,7 +182,7 @@ jobs:
           version="${{ steps.version.outputs.version }}"
           version="${version#v}"
           printf '%s\n' "$RELEASE_NOTES" > "${RUNNER_TEMP}/release-notes.md"
-          node .framework-source/tools/release/publish-release.mjs \
+          node tools/release/publish-release.mjs \
             --toc BLU_Forever.toc --archive "artifacts/BLU_Forever-v${version}.zip" \
             --tag "${GITHUB_REF_NAME}" --release-type "${{ steps.release_type.outputs.type }}" \
             --changelog-file "${RUNNER_TEMP}/release-notes.md" --out artifacts
