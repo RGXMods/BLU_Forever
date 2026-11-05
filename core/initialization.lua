@@ -110,6 +110,8 @@ function BLU:Initialize()
 		"levelup",
 		"reputation",
 		"honor",
+		"loot",
+		"collectibles",
 		"hardcore"
 	})
 

@@ -1,3 +1,9 @@
+# v1.1.5-beta.2 - 2026-11-05
+
+- New Loot tab with Item Looted and Appearance Collected sounds (both start as None).
+- Honor tab: Honor Gained and PvP Victory sounds added.
+- Requires RGX-Framework 2.14.0.
+
 # v1.1.5-beta.1 - 2026-11-05
 
 - Combat Music Track now plays when combat starts and stops when combat ends (it ignored built-in sounds and stopped all music before).

@@ -1,6 +1,6 @@
 ## Interface: 16001
 ## X-Wago-ID: L6JbPd6v
-## Version: v1.1.5-beta.1
+## Version: v1.1.5-beta.2
 ## X-WoWI-ID: 27290
 ## Title:  |cff05dffaB|r|cffffffffetter|r |cff05dffaL|r|cffffffffevel-|r|cff05dffaU|r|cffffffffp|r|cff05dffa!|r |cffFFD700(Forever)|r
 ## Notes: |n|r  |cff05dffa/blu -|r Open options panel
@@ -8,6 +8,7 @@
 ## Category: RealmGX
 ## Group: RealmGX
 ## RequiredDeps: RGX-Framework
+## X-RGX-Framework-MinVersion: 2.14.0
 ## DefaultState: Enabled
 ## SavedVariables: BLUForeverDB
 ## X-Curse-Project-ID: 1712132
