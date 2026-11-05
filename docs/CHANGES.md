@@ -1,3 +1,9 @@
+# v1.1.5-beta.1 - 2026-11-05
+
+- Combat Music Track now plays when combat starts and stops when combat ends (it ignored built-in sounds and stopped all music before).
+- Fixed the stray space in the Better Level-Up! title.
+- Release tooling now lists the correct WoW Forever game version on CurseForge and Wago.
+
 # v1.1.4 - 2026-10-13
 
 - Republish the promoted stable with a release-compatible changelog file.
