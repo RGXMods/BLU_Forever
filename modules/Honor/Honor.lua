@@ -17,6 +17,7 @@ local HONOR_CHECK_DELAY_SECONDS = 0.20
 HonorRank.currentHonorLevel = nil
 HonorRank.lastSoundAt = 0
 HonorRank.pendingCheck = false
+HonorRank.frameworkSubscriptions = {}
 
 local function GetCurrentHonorLevel()
     local level = 0
@@ -87,6 +88,34 @@ function HonorRank:QueueHonorLevelCheck(triggerName, delaySeconds)
     end)
 end
 
+-- Honor gained and PvP victory come from the framework (RGXHonor 2.14.0+, RGXCombat).
+function HonorRank:SubscribeFrameworkTriggers()
+    if #self.frameworkSubscriptions > 0 then return end
+
+    local RGX = _G.RGXFramework
+    local function add(unsubscribe)
+        if type(unsubscribe) == "function" then
+            self.frameworkSubscriptions[#self.frameworkSubscriptions + 1] = unsubscribe
+        end
+    end
+
+    local Honor = RGX and RGX.GetHonor and RGX:GetHonor()
+    if Honor and Honor.OnHonorGain then
+        add(Honor:OnHonorGain(function()
+            BLU:PlayCategorySound("honorgain")
+        end))
+    else
+        BLU:PrintDebug("[Honor] RGXHonor.OnHonorGain is unavailable; it needs RGX-Framework 2.14.0 or newer")
+    end
+
+    local Combat = RGX and RGX.GetCombat and RGX:GetCombat()
+    if Combat and Combat.OnPvPVictory then
+        add(Combat:OnPvPVictory(function()
+            BLU:PlayCategorySound("pvpvictory")
+        end))
+    end
+end
+
 function HonorRank:Init()
     BLU:RegisterEvent("HONOR_LEVEL_UPDATE", function(event, ...)
         self:OnHonorLevelUpdate(event, ...)
@@ -101,12 +130,18 @@ function HonorRank:Init()
         self:OnPlayerEnteringWorld(event, ...)
     end, HONOR_EVENT_ID_ENTERING_WORLD)
 
+    self:SubscribeFrameworkTriggers()
     self:UpdateCurrentHonorLevel()
 
     BLU:PrintDebug(BLU:Loc("MODULE_LOADED", "HonorRank"))
 end
 
 function HonorRank:Cleanup()
+    for i = #self.frameworkSubscriptions, 1, -1 do
+        pcall(self.frameworkSubscriptions[i])
+    end
+    self.frameworkSubscriptions = {}
+
     BLU:UnregisterEvent("HONOR_LEVEL_UPDATE", HONOR_EVENT_ID_LEVEL)
     BLU:UnregisterEvent("PLAYER_PVP_RANK_CHANGED", HONOR_EVENT_ID_RANK)
     BLU:UnregisterEvent("HONOR_XP_UPDATE", HONOR_EVENT_ID_XP)

@@ -13,6 +13,10 @@ BLU.Modules["sound_panel"] = SoundPanel
 
 local EVENT_MODULE_MAP = {
 	honorrank = "honor",
+	honorgain = "honor",
+	pvpvictory = "honor",
+	lootitem = "loot",
+	appearance = "collectibles",
 	renownrank = "renown",
 	delvecompanion = "delve",
 	questaccept = "quest",
@@ -963,7 +967,8 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 		quest = "Pick sounds for quest progress and completion.",
 		reputation = "Pick a sound for reputation gains.",
 		achievement = "Pick sounds for legacy achievements.",
-		honorrank = "Pick a sound for honor milestones.",
+		loot = "Pick sounds for new items and newly collected appearances.",
+		honorrank = "Pick sounds for honor milestones, honor gained, and PvP victories.",
 	}
 	local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	intro:SetPoint("TOPLEFT", 0, -64)
@@ -978,6 +983,13 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 		CreateSoundDropdown(content, "quest", "Quest Accept Sound", dropY - 80, "questaccept")
 		CreateSoundDropdown(content, "quest", "Quest Complete Sound", dropY - 160, "questcomplete")
 		CreateSoundDropdown(content, "quest", "Quest Progress Sound", dropY - 240, "questprogress")
+	elseif eventType == "loot" then
+		CreateSoundDropdown(content, "loot", "Item Looted Sound", dropY, "lootitem")
+		CreateSoundDropdown(content, "loot", "Appearance Collected Sound", dropY - 80, "appearance")
+	elseif eventType == "honorrank" then
+		CreateSoundDropdown(content, eventType, eventName .. " Sound", dropY)
+		CreateSoundDropdown(content, eventType, "Honor Gained Sound", dropY - 80, "honorgain")
+		CreateSoundDropdown(content, eventType, "PvP Victory Sound", dropY - 160, "pvpvictory")
 	elseif eventType == "delvecompanion" then
 		CreateSoundDropdown(content, eventType, "Companion Level-Up Sound", dropY)
 		CreateSoundDropdown(content, eventType, "Delve Life Lost Sound", dropY - 80, "delvelifelost")

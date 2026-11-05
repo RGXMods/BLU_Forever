@@ -1041,7 +1041,7 @@ function Tabs:Init()
         {text = "Debug",        create = BLU.CreateDebugPanel,    row = 2, col = 1, icon = "Interface\\Icons\\INV_Misc_Gear_03"},
         {text = "Sounds",      create = BLU.CreateSoundsPanel,   row = 2, col = 2, icon = "Interface\\Icons\\INV_Misc_Bell_01"},
         {text = "Reputation",  eventType = "reputation",         row = 2, col = 3, feature = "reputation",  icon = "Interface\\Icons\\Achievement_Reputation_01"},
-        {text = "Loot",         create = lootPanel,               row = 2, col = 4, feature = "loot",        icon = "Interface\\Icons\\INV_Misc_Coin_02"},
+        {text = "Loot",         eventType = "loot",               row = 2, col = 4, feature = "loot",        icon = "Interface\\Icons\\INV_Misc_Coin_02"},
         {text = "Honor",        eventType = "honorrank",          row = 2, col = 5, feature = "honorrank",   icon = "Interface\\Icons\\PVPCurrency-Honor-Horde"},
         {text = "Hardcore",    create = BLU.CreateHardcorePanel, row = 2, col = 6, feature = "hardcore",    icon = "Interface\\Icons\\Spell_Shadow_AnimateDead"},
     }
