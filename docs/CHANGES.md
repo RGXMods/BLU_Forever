@@ -1,3 +1,15 @@
+# v1.1.5 - 2026-11-06
+
+- New Loot tab with Item Looted and Appearance Collected sounds (both start as None).
+- Honor tab: Honor Gained and PvP Victory sounds.
+- The Legacy tab labels its sounds Task Complete and Task Progress (Forever has no achievements).
+- New Warcraft III Music sound pack: 12 tracks, each with Low, Medium and High volume variants. Pick them under Combat > Combat Music Track or for any other sound. (After updating, fully quit and relaunch WoW so the new sound files load.)
+- Combat music starts when combat starts and stops when it ends, for any sound, on the Music channel.
+- Dropdown menus: the Play button stays inside the menu row, and menus use BLU's colours (the menu background needs RGX-Framework 2.14.2). The Test button goes back from Stop to Play when the sound ends.
+- Volume sliders keep their position after loading, resizing or reloading; the Channel Volume slider re-reads the game volume each time the General page opens.
+- General page cards: section headers use the same fill and border as the card.
+- Minimap icon: hiding it with Ctrl+Right-click or /blu icon now updates the saved setting and the options checkbox together, so the setting stays in step across clicks and reloads.
+
 # v1.1.5-beta.7 - 2026-11-05
 
 - Dropdown menus now use BLU's own colours: the list background and border, and the Play button, match the rest of BLU (needs RGX-Framework 2.14.2 for the menu background).
