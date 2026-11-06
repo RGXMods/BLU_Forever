@@ -356,22 +356,23 @@ local function BuildSoundButtonMenu(dropdownFrame, getTriggerId, labelFontString
                 return
             end
 
-            local previewButton = button.bluPreviewButton
-            if not previewButton then
-                previewButton = CreateFrame("Button", nil, button, "BackdropTemplate")
-                previewButton:SetSize(34, 16)
-                previewButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
-                previewButton:SetBackdropColor(0.08, 0.10, 0.13, 0.95)
-                previewButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-                previewButton:RegisterForClicks("LeftButtonUp")
-                previewButton:SetScript("OnClick", function(btn)
+            -- Themed, recycle-safe inline button from the framework.
+            local previewButton
+            previewButton = Drops:AddInlineButton(button, {
+                key = "bluPreviewButton",
+                text = "Play",
+                width = 34,
+                height = 16,
+                tooltip = "Play or stop this sound",
+                onClick = function()
+                    local btn = previewButton
                     if btn.soundId and BLU.SoundRegistry and BLU.SoundRegistry.PreviewSound then
                         local playing, status = BLU.SoundRegistry:PreviewSound(btn.soundId, {
                             categoryOverride = "combat",
                             volumeSettingOverride = GetSelectedVolume(getTriggerId()),
                             triggerIdOverride = getTriggerId(),
                             forceMusicPreview = getTriggerId() == "combat_music_track",
-                            previewKey = "combat:inline:" .. tostring(getTriggerId()) .. ":" .. tostring(btn.soundId),
+                            previewKey = btn.previewKey,
                         })
                         if btn.label then
                             btn.label:SetText((playing and status == "playing") and "Stop" or "Play")
@@ -387,31 +388,8 @@ local function BuildSoundButtonMenu(dropdownFrame, getTriggerId, labelFontString
                             end)
                         end
                     end
-                end)
-                previewButton:SetScript("OnEnter", function(btn)
-                    btn:SetBackdropColor(0.12, 0.16, 0.22, 1)
-                    btn:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
-                    GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-                    local isPlaying = BLU.SoundRegistry
-                        and BLU.SoundRegistry.IsPreviewPlaying
-                        and BLU.SoundRegistry:IsPreviewPlaying(btn.soundId, btn.previewKey)
-                    GameTooltip:SetText(isPlaying and "Stop" or "Play")
-                    GameTooltip:AddLine(isPlaying and "Click to stop this preview." or "Click to preview this sound.", 0.7, 0.7, 0.7, true)
-                    GameTooltip:Show()
-                end)
-                previewButton:SetScript("OnLeave", function(btn)
-                    btn:SetBackdropColor(0.08, 0.10, 0.13, 0.95)
-                    btn:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-                    GameTooltip:Hide()
-                end)
-
-                local previewLabel = previewButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-                previewLabel:SetPoint("CENTER", 0, 0)
-                previewLabel:SetText("Play")
-                previewLabel:SetTextColor(unpack(BLU.Modules.design.Colors.Primary))
-                previewButton.label = previewLabel
-                button.bluPreviewButton = previewButton
-            end
+                end,
+            })
 
             previewButton.previewKey = "combat:inline:" .. tostring(getTriggerId()) .. ":" .. tostring(soundId)
             previewButton.soundId = soundId
@@ -424,7 +402,7 @@ local function BuildSoundButtonMenu(dropdownFrame, getTriggerId, labelFontString
 
             local normalText = _G[button:GetName() .. "NormalText"]
             previewButton:ClearAllPoints()
-            previewButton:SetPoint("RIGHT", button, "RIGHT", -8, 0)
+            previewButton:SetPoint("RIGHT", button, "RIGHT", -6, 0)
 
             if normalText then
                 normalText:ClearAllPoints()
