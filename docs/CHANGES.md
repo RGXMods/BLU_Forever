@@ -1,3 +1,8 @@
+# v1.1.5-beta.5 - 2026-11-05
+
+- The Test button on sound dropdowns goes back from Stop to Play when the sound ends.
+- Legacy tab: sounds are now labelled Task Complete and Task Progress (Forever has no achievements).
+
 # v1.1.5-beta.4 - 2026-11-05
 
 - Sound dropdowns: the Play button uses the shared themed button and stays inside the menu row. With RGX-Framework 2.14.1 the menu frame also uses the BLU theme instead of the default Blizzard border.
