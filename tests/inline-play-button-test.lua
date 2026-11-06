@@ -19,4 +19,8 @@ for _, path in ipairs({ "core/interface/options/sound_panel.lua", "core/interfac
     check(not s:find('"RIGHT", button, "RIGHT", -8, 0', 1, true), path .. " anchors Play with the old -8 inset")
 end
 
+local panel = read("core/interface/options/sound_panel.lua")
+check(panel:find('"Task Progress Sound"', 1, true), "Legacy tab must say Task Progress, not Achievement Progress")
+check(not panel:find('"Achievement Progress Sound"', 1, true), "no Achievement Progress label in Forever")
+
 print("inline-play-button-test OK")
