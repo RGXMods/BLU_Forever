@@ -1,3 +1,7 @@
+# v1.1.6 - 2026-11-06
+
+- Combat music keeps playing for the whole fight: when a track ends while you are still in combat it starts again, and leaving combat stops it. Before, a long fight outlasted the track and the music just stopped. (Only music-length tracks are restarted.)
+
 # v1.1.5 - 2026-11-06
 
 - New Loot tab with Item Looted and Appearance Collected sounds (both start as None).
