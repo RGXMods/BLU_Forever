@@ -1,3 +1,8 @@
+# v1.1.5-beta.6 - 2026-11-05
+
+- Volume sliders keep their position: the per-sound Low/Medium/High slider redraws from its current width whenever the page is shown or resized, instead of staying where it was first drawn.
+- The Channel Volume slider re-reads the WoW volume each time the General page is shown, so it matches the game's own setting after a reload.
+
 # v1.1.5-beta.5 - 2026-11-05
 
 - The Test button on sound dropdowns goes back from Stop to Play when the sound ends.
