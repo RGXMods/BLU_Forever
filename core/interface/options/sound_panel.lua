@@ -436,25 +436,23 @@ local function CreateSoundDropdown(parent, eventType, label, yOffset, soundType)
 				return
 			end
 
-			local previewButton = button.bluPreviewButton
-			if not previewButton then
-				previewButton = CreateFrame("Button", nil, button, "BackdropTemplate")
-				previewButton:SetSize(34, 16)
-				previewButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
-				previewButton:SetBackdropColor(0.08, 0.10, 0.13, 0.95)
-				previewButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-				previewButton:RegisterForClicks("LeftButtonUp")
-				previewButton:SetScript("OnClick", function(btn)
+			-- Themed, recycle-safe inline button from the framework (design tokens,
+			-- hides itself when another menu reuses this row).
+			local previewButton
+			previewButton = Drops:AddInlineButton(button, {
+				key = "bluPreviewButton",
+				text = "Play",
+				width = 34,
+				height = 16,
+				tooltip = "Play or stop this sound",
+				onClick = function()
+					local btn = previewButton
 					if btn.soundId and BLU.SoundRegistry and BLU.SoundRegistry.PreviewSound then
 						BLU.SoundRegistry:PreviewSound(btn.soundId, {
 							categoryOverride = actualEventType,
 							previewKey = btn.previewKey,
 						})
-						-- Read the button's own label state back from the single
-						-- authoritative source (IsPreviewPlaying) rather than the
-						-- PreviewSound return tuple, matching every other place in
-						-- this file that displays Play/Stop state. This is what
-						-- made the label lag a click behind actual playback.
+						-- Read Play/Stop back from the single authoritative source.
 						if btn.label and BLU.SoundRegistry.IsPreviewPlaying then
 							local isPlaying = BLU.SoundRegistry:IsPreviewPlaying(btn.soundId, btn.previewKey)
 							btn.label:SetText(isPlaying and "Stop" or "Play")
@@ -470,31 +468,8 @@ local function CreateSoundDropdown(parent, eventType, label, yOffset, soundType)
 							end)
 						end
 					end
-				end)
-				previewButton:SetScript("OnEnter", function(btn)
-					btn:SetBackdropColor(0.12, 0.16, 0.22, 1)
-					btn:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
-					GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-					local isPlaying = BLU.SoundRegistry
-						and BLU.SoundRegistry.IsPreviewPlaying
-						and BLU.SoundRegistry:IsPreviewPlaying(btn.soundId, btn.previewKey)
-					GameTooltip:SetText(isPlaying and "Stop" or "Play")
-					GameTooltip:AddLine(isPlaying and "Click to stop this preview." or "Click to play this sound.", 0.7, 0.7, 0.7, true)
-					GameTooltip:Show()
-				end)
-				previewButton:SetScript("OnLeave", function(btn)
-					btn:SetBackdropColor(0.08, 0.10, 0.13, 0.95)
-					btn:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-					GameTooltip:Hide()
-				end)
-
-				local label = previewButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-				label:SetPoint("CENTER", 0, 0)
-				label:SetText("Play")
-				label:SetTextColor(unpack(BLU.Modules.design.Colors.Primary))
-				previewButton.label = label
-				button.bluPreviewButton = previewButton
-			end
+				end,
+			})
 
 			previewButton.previewKey = "soundpanel:inline:" .. tostring(actualEventType) .. ":" .. tostring(soundId)
 			previewButton.soundId = soundId
@@ -507,7 +482,7 @@ local function CreateSoundDropdown(parent, eventType, label, yOffset, soundType)
 
 			local normalText = _G[button:GetName() .. "NormalText"]
 			previewButton:ClearAllPoints()
-			previewButton:SetPoint("RIGHT", button, "RIGHT", -8, 0)
+			previewButton:SetPoint("RIGHT", button, "RIGHT", -6, 0)
 
 			if normalText then
 				normalText:ClearAllPoints()
