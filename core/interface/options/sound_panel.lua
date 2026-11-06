@@ -941,7 +941,7 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 		levelup = "Pick a sound for each level-up.",
 		quest = "Pick sounds for quest progress and completion.",
 		reputation = "Pick a sound for reputation gains.",
-		achievement = "Pick sounds for legacy achievements.",
+		achievement = "Pick sounds for legacy task completion and task progress.",
 		loot = "Pick sounds for new items and newly collected appearances.",
 		honorrank = "Pick sounds for honor milestones, honor gained, and PvP victories.",
 	}
@@ -970,8 +970,8 @@ function BLU.CreateEventSoundPanel(panel, eventType, eventName)
 		CreateSoundDropdown(content, eventType, "Delve Life Lost Sound", dropY - 80, "delvelifelost")
 		CreateSoundDropdown(content, eventType, "Delve Life Gained Sound", dropY - 160, "delvelifegained")
 	elseif eventType == "achievement" then
-		CreateSoundDropdown(content, eventType, eventName .. " Sound", dropY)
-		CreateSoundDropdown(content, eventType, "Achievement Progress Sound", dropY - 80, "achievementprogress")
+		CreateSoundDropdown(content, eventType, "Task Complete Sound", dropY)
+		CreateSoundDropdown(content, eventType, "Task Progress Sound", dropY - 80, "achievementprogress")
 	elseif eventType == "battlepet" then
 		CreateSoundDropdown(content, eventType, eventName .. " Level-Up Sound", dropY)
 		CreateSoundDropdown(content, eventType, "Pet Capture Sound", dropY - 80, "petcapture")
