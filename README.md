@@ -36,6 +36,12 @@ WoW Forever is an Era-lineage client; these retail systems do not exist there an
 | `/blu removecustom <path>` | Remove a custom sound |
 | `/blu refresh` | Rescan user custom sounds |
 
+## Your own sounds
+
+Put your sound files (`.ogg`, `.mp3`, `.wav`) in `Interface\AddOns\BLU_Forever\user\sounds\`, then add them from `/blu` > Sounds > Add Custom Sound by name (`myfile` or `myfile.ogg`) or with `/blu addcustom myfile`. Files named `custom01`, `sound01`, `usersound01` or `blu_custom01` (up to 99) in that folder, or in `user\`, are picked up automatically.
+
+BLU looks for a name in this order: its own `user\sounds`, `user`, `sounds`, `media` and `media\sounds` folders, then `Interface\AddOns\` itself, then the sound folders of every other installed addon (sound packs and media addons first). A WoW addon cannot list folders, so it tests the conventional folder names (`sounds`, `sound`, `media`, `media\sounds`, `audio`, `assets`) in each addon; a sound in an unusual folder needs its full path: `/blu addcustom Interface\AddOns\SomePack\weird\place\file.ogg`. Sounds that other addons register with Shared Media are listed automatically at any depth.
+
 Settings are stored in `BLUForeverDB` with full profile support (Profiles tab).
 
 ## Compatibility
