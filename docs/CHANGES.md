@@ -1,3 +1,9 @@
+# v1.1.5-beta.4 - 2026-11-05
+
+- Sound dropdowns: the Play button uses the shared themed button and stays inside the menu row. With RGX-Framework 2.14.1 the menu frame also uses the BLU theme instead of the default Blizzard border.
+- Combat dropdowns use the same Play button.
+- Recommended: RGX-Framework 2.14.1 or newer (2.14.0 still works, with the old menu border).
+
 # v1.1.5-beta.3 - 2026-11-05
 
 - New sound pack: Warcraft III Music. 12 tracks from the game's soundtrack (Battle A and B, Battle Intense A to C, Alliance Battle March, Combat 1 to 3, Doom, Illidan's Theme, Arthas' Theme), each with Low, Medium and High volume variants.
