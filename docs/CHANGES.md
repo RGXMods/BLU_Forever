@@ -1,3 +1,8 @@
+# v1.1.11 - 2026-11-06
+
+- Adding a sound by name no longer searches other addons' folders or guesses at similar names. BLU looks in its own documented folders (user\sounds and friends), then at sounds already registered in BLU by exact name; anything else needs its full path. When a name cannot be found, BLU says where to put the file and that new files need a full game restart.
+- The Appearance Collected sound now listens for the game's transmog events directly as well as through the framework, so it plays even when the framework collectibles module is not loaded. Use /blu debug to see each appearance event and why a sound was or was not played.
+
 # v1.1.10 - 2026-11-06
 
 - Chat messages no longer show two BLU prefixes ("[BLU] BLU: Options cannot be opened in combat..."). Every BLU chat line now has exactly one.
