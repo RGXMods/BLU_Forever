@@ -69,7 +69,7 @@ function BLU.CreateQuestPanel(panel)
                 PlaySoundFile(soundFile, BLU.db.soundChannel or "Master")
             end
             
-            C_Timer.After(2, function()
+            _G.RGXFramework:After(2, function()
                 self:SetText("Test")
                 self:Enable()
             end)
