@@ -21,7 +21,7 @@ _G.RGXFramework = {
     GetCombat = function() return { OnPvPVictory = capture("pvp") } end,
 }
 _G.GetTime = function() return 10 end
-_G.C_Timer = { After = function() end }
+_G.RGXFramework.After = function() end
 _G.UnitHonorLevel = function() return 1 end
 
 _G.BLU = {

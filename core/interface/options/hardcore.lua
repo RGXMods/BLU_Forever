@@ -112,7 +112,7 @@ function BLU.CreateHardcorePanel(panel)
 		else
 			if BLU.UnloadModule then BLU:UnloadModule(moduleLoadName) end
 		end
-		C_Timer.After(0, function()
+		_G.RGXFramework:After(0, function()
 			if toggle and toggle:IsVisible() then UpdateToggleState(IsModuleEnabled()) end
 		end)
 	end)
