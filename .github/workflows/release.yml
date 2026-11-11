@@ -202,35 +202,35 @@ jobs:
 
           case "$release_type" in
             "release")
-              title="BLU | Better Level-Up! (Forever) ${version}"
-              color=3066993
-              footer="RGX Mods - Stable Release"
+              title="RGX | Better Level-Up! (Forever) ${version}"
+              color=385018
+              footer="RGX Mods • Stable Release"
               description="A new stable release is live."
               channel="Release"
               ;;
             "beta")
-              title="BLU | Better Level-Up! (Forever) ${version} (Beta)"
+              title="RGX | Better Level-Up! (Forever) ${version} (Beta)"
               color=16744448
-              footer="RGX Mods - Beta Build"
+              footer="RGX Mods • Beta Build"
               description="Beta build available for testing."
               channel="Beta"
               ;;
             "alpha"|"alpha-branch")
-              title="BLU | Better Level-Up! (Forever) ${version} (Alpha)"
+              title="RGX | Better Level-Up! (Forever) ${version} (Alpha)"
               color=9109504
-              footer="RGX Mods - Alpha Build"
+              footer="RGX Mods • Alpha Build"
               description="Alpha build available for testing."
               channel="Alpha"
               ;;
             "dev")
-              title="BLU | Better Level-Up! (Forever) ${version} (Dev)"
+              title="RGX | Better Level-Up! (Forever) ${version} (Dev)"
               color=3447003
-              footer="RGX Mods - Dev Build"
+              footer="RGX Mods • Dev Build"
               description="Development build from the dev branch."
               channel="Dev"
               ;;
             *)
-              title="BLU | Better Level-Up! (Forever) ${version}"
+              title="RGX | Better Level-Up! (Forever) ${version}"
               color=10000000
               footer="RGX Mods"
               description="Build completed."
@@ -241,7 +241,7 @@ jobs:
           release_url="https://github.com/RGXMods/BLU_Forever/releases/tag/v${version#v}"
 
           jq -n \
-            --arg username "BLU Forever Releases" \
+            --arg username "RGX Releases" \
             --arg title "$title" \
             --arg url "$release_url" \
             --arg description "$description" \
