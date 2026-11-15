@@ -31,10 +31,10 @@ local moduleCategoryMap = {
     appearance = "collectibles",
     honorgain = "honorrank",
     pvpvictory = "honorrank",
-    death_self = "death",
-    death_party = "death",
-    death_raid = "death",
-    death_other = "death",
+    death_self = "hardcore",
+    death_party = "hardcore",
+    death_raid = "hardcore",
+    death_other = "hardcore",
 }
 
 local CATEGORY_SOUND_COOLDOWN_SECONDS = 0.20

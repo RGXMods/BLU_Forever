@@ -1,6 +1,7 @@
 # v1.1.15 - 2026-11-14
 
 - BLU follows the RGX-Framework theme override (beta, off by default): while it is on, BLU's options take the framework's main colour and palette, and change as soon as the theme changes, without a reload. With it off BLU looks exactly as before. Requires RGX-Framework 2.19.0.
+- Death sounds play: your death, party, raid and other-player deaths now play the sound picked on the Hardcore page (they played nothing before), once per death, and the Hardcore switch turns them all off.
 
 # v1.1.14 - 2026-11-10
 
