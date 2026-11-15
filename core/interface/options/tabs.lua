@@ -213,15 +213,15 @@ local function CreateComingSoonPanel(panel, tabName)
 
 	local pageBg = content:CreateTexture(nil, "BACKGROUND")
 	pageBg:SetAllPoints()
-	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+	pageBg:SetColorTexture(BLU.Color("fill", 0.04, 0.06, 0.08, 0.35))
 
     local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
     titleBar:SetPoint("TOPLEFT", 0, 0)
     titleBar:SetPoint("TOPRIGHT", 0, 0)
     titleBar:SetHeight(44)
     titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-    titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
-    titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+    titleBar:SetBackdropColor(BLU.Color("fill", 0.06, 0.10, 0.16, 0.95))
+    titleBar:SetBackdropBorderColor(BLU.Color("border", 0.10, 0.20, 0.28, 1))
 
     local icon = titleBar:CreateTexture(nil, "ARTWORK")
     icon:SetSize(24, 24)
@@ -230,7 +230,7 @@ local function CreateComingSoonPanel(panel, tabName)
 
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
-    title:SetText("|cff05dffa" .. tabName .. " Sounds|r")
+    title:SetText(BLU.Hex() .. tabName .. " Sounds|r")
 
     if tabName == "Loot" then
         local switchFrame = CreateFrame("Frame", nil, titleBar)
@@ -261,7 +261,7 @@ local function CreateComingSoonPanel(panel, tabName)
     intro:SetPoint("TOPRIGHT", 0, -64)
     intro:SetJustifyH("LEFT")
     intro:SetWordWrap(true)
-    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetTextColor(BLU.Color("text", 0.6, 0.66, 0.72))
     intro:SetText(tabName == "Loot"
         and "Preview the planned loot triggers. Sound selection is not available yet."
         or cfg.body)
@@ -275,19 +275,19 @@ local function CreateComingSoonPanel(panel, tabName)
             row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -10, y)
             row:SetHeight(68)
             row:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-            row:SetBackdropColor(0.08, 0.11, 0.15, 0.92)
-            row:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+            row:SetBackdropColor(BLU.Color("fill", 0.08, 0.11, 0.15, 0.92))
+            row:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
 
             local rowTitle = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
             rowTitle:SetPoint("TOPLEFT", 10, -6)
-            rowTitle:SetTextColor(1.0, 0.82, 0.18)
+            rowTitle:SetTextColor(BLU.Color("text", 1.0, 0.82, 0.18))
             rowTitle:SetText(label)
 
             local rowStatus = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
             rowStatus:SetPoint("TOPLEFT", rowTitle, "BOTTOMLEFT", 0, -2)
             rowStatus:SetPoint("TOPRIGHT", rowTitle, "BOTTOMRIGHT", 0, -2)
             rowStatus:SetJustifyH("LEFT")
-            rowStatus:SetTextColor(0.02, 0.87, 0.98)
+            rowStatus:SetTextColor(BLU.Color("text", 0.02, 0.87, 0.98))
             rowStatus:SetText("Coming soon")
 
             local selectButton = CreateFrame("Button", nil, row, "BackdropTemplate")
@@ -295,20 +295,20 @@ local function CreateComingSoonPanel(panel, tabName)
             selectButton:SetPoint("TOP", rowStatus, "BOTTOM", 0, -5)
             selectButton:SetSize(220, 22)
             selectButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
-            selectButton:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
-            selectButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+            selectButton:SetBackdropColor(BLU.Color("fill", 0.10, 0.14, 0.19, 0.96))
+            selectButton:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
             selectButton:EnableMouse(false)
 
             local buttonText = selectButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
             buttonText:SetPoint("LEFT", 8, 0)
-            buttonText:SetTextColor(0.6, 0.66, 0.72)
+            buttonText:SetTextColor(BLU.Color("text", 0.6, 0.66, 0.72))
             buttonText:SetText("Not available yet")
 
             local testBtn = BLU.Modules.design:CreateButton(row, "Test", 60, 22)
             testBtn:SetPoint("RIGHT", row, "RIGHT", -10, 0)
             testBtn:SetPoint("TOP", rowStatus, "BOTTOM", 0, -5)
             testBtn:Disable()
-            if testBtn.label then testBtn.label:SetTextColor(0.6, 0.66, 0.72) end
+            if testBtn.label then testBtn.label:SetTextColor(BLU.Color("text", 0.6, 0.66, 0.72)) end
         end
         return
     end
@@ -322,7 +322,7 @@ local function CreateComingSoonPanel(panel, tabName)
     body:SetPoint("TOPLEFT", 4, -4)
     body:SetPoint("RIGHT", -8, 0)
     body:SetJustifyH("LEFT")
-    body:SetTextColor(0.82, 0.82, 0.82)
+    body:SetTextColor(BLU.Color("text", 0.82, 0.82, 0.82))
     body:SetText(cfg.body)
 end
 
@@ -335,7 +335,7 @@ local function CreateCombatPrototypePanel(panel)
 
 	local pageBg = content:CreateTexture(nil, "BACKGROUND")
 	pageBg:SetAllPoints()
-	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+	pageBg:SetColorTexture(BLU.Color("fill", 0.04, 0.06, 0.08, 0.35))
 
     BLU._combatTabState = BLU._combatTabState or {page = 1}
     local state = BLU._combatTabState
@@ -346,8 +346,8 @@ local function CreateCombatPrototypePanel(panel)
     titleBar:SetPoint("TOPRIGHT", 0, 0)
     titleBar:SetHeight(44)
     titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-    titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
-    titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+    titleBar:SetBackdropColor(BLU.Color("fill", 0.06, 0.10, 0.16, 0.95))
+    titleBar:SetBackdropBorderColor(BLU.Color("border", 0.10, 0.20, 0.28, 1))
 
     local icon = titleBar:CreateTexture(nil, "ARTWORK")
     icon:SetSize(24, 24)
@@ -356,7 +356,7 @@ local function CreateCombatPrototypePanel(panel)
 
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
-    title:SetText("|cff05dffaCombat|r")
+    title:SetText(BLU.Hex() .. "Combat|r")
 
     local introSection = BLU.Modules.design:CreateSection(content, "Combat Prototype", "Interface\\Icons\\INV_Misc_Note_05")
     introSection:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -20)
@@ -368,7 +368,7 @@ local function CreateCombatPrototypePanel(panel)
     intro:SetPoint("RIGHT", -8, 0)
     intro:SetJustifyH("LEFT")
     intro:SetWordWrap(true)
-    intro:SetTextColor(0.82, 0.82, 0.82)
+    intro:SetTextColor(BLU.Color("text", 0.82, 0.82, 0.82))
     intro:SetText("This tab is a visual test bed for future combat settings. The goal here is to compare direct combat cue options, dedicated combat music controls, and a compact paged trigger layout before module logic is built.")
 
     local function CreateCompactMockRow(parent, x, y, titleText, soundText, volumeText, tooltipText)
@@ -376,8 +376,8 @@ local function CreateCombatPrototypePanel(panel)
         row:SetPoint("TOPLEFT", x, y)
         row:SetHeight(74)
         row:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-        row:SetBackdropColor(0.08, 0.11, 0.15, 0.92)
-        row:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+        row:SetBackdropColor(BLU.Color("fill", 0.08, 0.11, 0.15, 0.92))
+        row:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
 
         local rowTitle = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         rowTitle:SetPoint("TOPLEFT", 10, -8)
@@ -389,21 +389,21 @@ local function CreateCombatPrototypePanel(panel)
         fakeDropdown:SetPoint("TOPLEFT", rowTitle, "BOTTOMLEFT", 0, -8)
         fakeDropdown:SetSize(146, 22)
         fakeDropdown:SetBackdrop(BLU.Modules.design.Backdrops.Button)
-        fakeDropdown:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
-        fakeDropdown:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+        fakeDropdown:SetBackdropColor(BLU.Color("fill", 0.10, 0.14, 0.19, 0.96))
+        fakeDropdown:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
         fakeDropdown:RegisterForClicks("LeftButtonUp")
 
         local dropdownText = fakeDropdown:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         dropdownText:SetPoint("LEFT", 8, 0)
         dropdownText:SetPoint("RIGHT", -18, 0)
         dropdownText:SetJustifyH("LEFT")
-        dropdownText:SetTextColor(0.84, 0.84, 0.84, 1)
+        dropdownText:SetTextColor(BLU.Color("text", 0.84, 0.84, 0.84, 1))
         dropdownText:SetText(soundText or "Select Sound")
 
         local dropdownArrow = fakeDropdown:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         dropdownArrow:SetPoint("RIGHT", -6, 0)
         dropdownArrow:SetText("v")
-        dropdownArrow:SetTextColor(0.70, 0.78, 0.86, 1)
+        dropdownArrow:SetTextColor(BLU.Color("text", 0.70, 0.78, 0.86, 1))
 
         local soundChoices = {
             "BLU Defaults",
@@ -422,7 +422,7 @@ local function CreateCombatPrototypePanel(panel)
 
         local volumeLabel = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         volumeLabel:SetPoint("BOTTOMLEFT", row, "TOPLEFT", 170, -28)
-        volumeLabel:SetTextColor(0.70, 0.78, 0.86)
+        volumeLabel:SetTextColor(BLU.Color("text", 0.70, 0.78, 0.86))
         volumeLabel:SetText(volumeText or "Medium")
 
         local slider = CreateFrame("Slider", nil, row)
@@ -435,7 +435,7 @@ local function CreateCombatPrototypePanel(panel)
         local sliderTrack = row:CreateTexture(nil, "ARTWORK")
         sliderTrack:SetSize(64, 4)
         sliderTrack:SetPoint("CENTER", slider, "CENTER", 0, 0)
-        sliderTrack:SetColorTexture(0.14, 0.20, 0.28, 1)
+        sliderTrack:SetColorTexture(BLU.Color("fill", 0.14, 0.20, 0.28, 1))
 
         local sliderFill = row:CreateTexture(nil, "ARTWORK")
         sliderFill:SetHeight(4)
@@ -509,7 +509,7 @@ local function CreateCombatPrototypePanel(panel)
             self:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
         end)
         fakeDropdown:SetScript("OnLeave", function(self)
-            self:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+            self:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
         end)
 
         slider:SetScript("OnMouseDown", function(self)
@@ -571,7 +571,7 @@ local function CreateCombatPrototypePanel(panel)
     cuesNote:SetPoint("RIGHT", -8, 0)
     cuesNote:SetJustifyH("LEFT")
     cuesNote:SetWordWrap(true)
-    cuesNote:SetTextColor(0.78, 0.82, 0.88)
+    cuesNote:SetTextColor(BLU.Color("text", 0.78, 0.82, 0.88))
     cuesNote:SetText("One-shot sounds that fire at a combat boundary. This is the clearest place for separate start and end cues.")
 
     local cueStartRow = CreateCompactMockRow(
@@ -611,7 +611,7 @@ local function CreateCombatPrototypePanel(panel)
     musicNote:SetPoint("RIGHT", -8, 0)
     musicNote:SetJustifyH("LEFT")
     musicNote:SetWordWrap(true)
-    musicNote:SetTextColor(0.78, 0.82, 0.88)
+    musicNote:SetTextColor(BLU.Color("text", 0.78, 0.82, 0.88))
     musicNote:SetText("Persistent combat music should likely live as its own system instead of being mixed into normal one-shot triggers.")
 
     local musicTrackRow = CreateCompactMockRow(
@@ -629,7 +629,7 @@ local function CreateCombatPrototypePanel(panel)
     musicState:SetPoint("TOPLEFT", musicTrackRow, "BOTTOMLEFT", 2, -8)
     musicState:SetPoint("RIGHT", musicSection.content, "RIGHT", -8, 0)
     musicState:SetJustifyH("LEFT")
-    musicState:SetTextColor(0.70, 0.78, 0.86)
+    musicState:SetTextColor(BLU.Color("text", 0.70, 0.78, 0.86))
     musicState:SetText("Placeholder behavior: start on combat begin, stop on combat end, with room later for fades, boss-only filters, or instance-only rules.")
 
     local futureSection = BLU.Modules.design:CreateSection(content, "Future Trigger Paging", "Interface\\Icons\\Ability_Warrior_Charge")
@@ -643,12 +643,12 @@ local function CreateCombatPrototypePanel(panel)
     futureNote:SetPoint("RIGHT", -190, 0)
     futureNote:SetJustifyH("LEFT")
     futureNote:SetWordWrap(true)
-    futureNote:SetTextColor(0.78, 0.82, 0.88)
+    futureNote:SetTextColor(BLU.Color("text", 0.78, 0.82, 0.88))
     futureNote:SetText("This area is for the broader combat-trigger catalog, laid out as a single column so each option gets the full row.")
 
     local pageLabel = futureSection.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     pageLabel:SetPoint("TOPRIGHT", -126, -6)
-    pageLabel:SetTextColor(0.70, 0.78, 0.86)
+    pageLabel:SetTextColor(BLU.Color("text", 0.70, 0.78, 0.86))
 
     local prevButton = BLU.Modules.design:CreateActionButton(
         futureSection.content,
@@ -753,24 +753,24 @@ local function CreateCombatPrototypePanel(panel)
         if state.page <= 1 then
             prevButton:Disable()
             if prevButton.label then
-                prevButton.label:SetTextColor(0.45, 0.45, 0.45, 1)
+                prevButton.label:SetTextColor(BLU.Color("text", 0.45, 0.45, 0.45, 1))
             end
         else
             prevButton:Enable()
             if prevButton.label then
-                prevButton.label:SetTextColor(0.80, 0.80, 0.80, 1)
+                prevButton.label:SetTextColor(BLU.Color("text", 0.80, 0.80, 0.80, 1))
             end
         end
 
         if state.page >= totalPages then
             nextButton:Disable()
             if nextButton.label then
-                nextButton.label:SetTextColor(0.45, 0.45, 0.45, 1)
+                nextButton.label:SetTextColor(BLU.Color("text", 0.45, 0.45, 0.45, 1))
             end
         else
             nextButton:Enable()
             if nextButton.label then
-                nextButton.label:SetTextColor(0.80, 0.80, 0.80, 1)
+                nextButton.label:SetTextColor(BLU.Color("text", 0.80, 0.80, 0.80, 1))
             end
         end
     end
@@ -906,7 +906,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
 
     local bg = button:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
-    bg:SetColorTexture(0.08, 0.11, 0.15, 0.90)
+    bg:SetColorTexture(BLU.Color("fill", 0.08, 0.11, 0.15, 0.90))
     button.bg = bg
 
     local border = CreateFrame("Frame", nil, button, "BackdropTemplate")
@@ -915,7 +915,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
         edgeFile = "Interface\\Buttons\\WHITE8x8",
         edgeSize = 1,
     })
-    border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    border:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
     button.border = border
 
     local buttonText = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -933,7 +933,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
         buttonText:SetPoint("CENTER", 0, 0)
     end
     buttonText:SetText(text)
-    buttonText:SetTextColor(0.8, 0.8, 0.8, 1)
+    buttonText:SetTextColor(BLU.Color("text", 0.8, 0.8, 0.8, 1))
     button.text = buttonText
 
     button:SetScript("OnClick", function(self)
@@ -954,8 +954,8 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
         BLU:PrintDebug("[Tabs] Hover leave on tab '" .. tostring(text) .. "'")
         if self.greyed or self.isPlaceholder then return end
         if not self.isActive then
-            self.border:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
-            self.text:SetTextColor(0.7, 0.7, 0.7, 1)
+            self.border:SetBackdropBorderColor(BLU.Color("border", 0.3, 0.3, 0.3, 1))
+            self.text:SetTextColor(BLU.Color("text", 0.7, 0.7, 0.7, 1))
         end
     end)
 
@@ -965,13 +965,13 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
         self.isActive = active
         if self.isPlaceholder then
             if active then
-                self.bg:SetColorTexture(0.07, 0.08, 0.10, 0.90)
-                self.text:SetTextColor(0.65, 0.72, 0.78, 1)
+                self.bg:SetColorTexture(BLU.Color("fill", 0.07, 0.08, 0.10, 0.90))
+                self.text:SetTextColor(BLU.Color("text", 0.65, 0.72, 0.78, 1))
                 self.border:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
             else
-                self.bg:SetColorTexture(0.05, 0.06, 0.08, 0.55)
-                self.text:SetTextColor(0.42, 0.48, 0.52, 1)
-                self.border:SetBackdropBorderColor(0.10, 0.14, 0.18, 1)
+                self.bg:SetColorTexture(BLU.Color("fill", 0.05, 0.06, 0.08, 0.55))
+                self.text:SetTextColor(BLU.Color("text", 0.42, 0.48, 0.52, 1))
+                self.border:SetBackdropBorderColor(BLU.Color("border", 0.10, 0.14, 0.18, 1))
             end
             if self.icon then
                 self.icon:SetDesaturated(true)
@@ -980,7 +980,7 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
             return
         end
         if active then
-            self.bg:SetColorTexture(0.11, 0.18, 0.24, 1)
+            self.bg:SetColorTexture(BLU.Color("fill", 0.11, 0.18, 0.24, 1))
             self.text:SetTextColor(unpack(BLU.Modules.design.Colors.Primary))
             self.border:SetBackdropBorderColor(unpack(BLU.Modules.design.Colors.Primary))
             if self.icon then
@@ -988,9 +988,9 @@ function BLU.CreateTabButton(parent, text, index, row, col, panel, icon)
                 self.icon:SetAlpha(1)
             end
         else
-            self.bg:SetColorTexture(0.08, 0.11, 0.15, 0.90)
-            self.text:SetTextColor(0.7, 0.7, 0.7, 1)
-            self.border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+            self.bg:SetColorTexture(BLU.Color("fill", 0.08, 0.11, 0.15, 0.90))
+            self.text:SetTextColor(BLU.Color("text", 0.7, 0.7, 0.7, 1))
+            self.border:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
             if self.icon then
                 self.icon:SetDesaturated(false)
                 self.icon:SetAlpha(0.95)

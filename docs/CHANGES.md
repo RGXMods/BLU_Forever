@@ -1,3 +1,7 @@
+# v1.1.15 - 2026-11-14
+
+- BLU follows the RGX-Framework theme override (beta, off by default): while it is on, BLU's options take the framework's main colour and palette, and change as soon as the theme changes, without a reload. With it off BLU looks exactly as before. Requires RGX-Framework 2.19.0.
+
 # v1.1.14 - 2026-11-10
 
 - Internal: every timer now runs through the RGX-Framework timer API (RGX:After). No behaviour changes.

@@ -29,7 +29,7 @@ function BLU.CreateQuestPanel(panel)
     
     local title = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("LEFT", icon, "RIGHT", 10, 0)
-    title:SetText("|cff05dffaB|retter |cff05dffaL|revel-|cff05dffaU|rp! Quest Events")
+    title:SetText(BLU.Hex() .. "B|retter " .. BLU.Hex() .. "L|revel-" .. BLU.Hex() .. "U|rp! Quest Events")
     
     -- Helper function to create a quest sound dropdown
     local function CreateQuestDropdown(parent, questEventType, questEventName, yOffset)
@@ -119,7 +119,7 @@ function BLU.CreateQuestPanel(panel)
                 
                 -- BLU Built-in Sounds
                 info = UIDropDownMenu_CreateInfo()
-                info.text = "|cff05dffaBLU Sound Packs|r"
+                info.text = BLU.Hex() .. "BLU Sound Packs|r"
                 info.value = "blu_sounds"
                 info.hasArrow = true
                 info.menuList = "blu_sounds"
@@ -175,7 +175,7 @@ function BLU.CreateQuestPanel(panel)
                         info.func = function()
                             BLU.db.selectedSounds[dropdown.eventId] = info.value
                             UIDropDownMenu_SetText(dropdown, sound.name)
-                            currentSound:SetText("|cff05dffa" .. sound.name .. "|r")
+                            currentSound:SetText(BLU.Hex() .. sound.name .. "|r")
                             CloseDropDownMenus()
                             
                             -- Enable quest module

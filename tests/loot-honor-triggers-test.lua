@@ -97,6 +97,7 @@ for _, id in ipairs({ "lootitem", "appearance", "honorgain", "pvpvictory" }) do
 end
 check(tabs:find('eventType = "loot"', 1, true), "the Loot tab is a data-driven event page")
 check(init:find('"loot"', 1, true) and init:find('"collectibles"', 1, true), "loot and collectibles are initialised")
-check(toc:find("X-RGX-Framework-MinVersion: 2.14.0", 1, true), "the TOC requires the framework that provides the callbacks")
+local fwMaj, fwMin = toc:match("X%-RGX%-Framework%-MinVersion: (%d+)%.(%d+)")
+check(fwMaj and (tonumber(fwMaj) > 2 or (tonumber(fwMaj) == 2 and tonumber(fwMin) >= 19)), "the TOC requires the framework that provides the callbacks and the brand API (2.19.0 or newer)")
 
 print("LOOT HONOR TRIGGERS OK  (loot, appearance, honor gain, PvP victory, old-framework tolerance, wiring)")
