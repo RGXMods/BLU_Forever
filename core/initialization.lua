@@ -39,6 +39,11 @@ function BLU:IsFeatureModuleEnabled(moduleName)
 
 	local profile = self.db
 	local moduleKey = moduleSettingKeyMap[moduleName] or moduleName
+	-- Legacy's visible switch is canonical once present; an obsolete flag
+	-- must not silently prevent its runtime adapter from loading on reload.
+	if moduleName == "achievement" and profile.modules and profile.modules[moduleKey] ~= nil then
+		return profile.modules[moduleKey] ~= false
+	end
 	if profile.modules and profile.modules[moduleKey] == false then
 		return false
 	end

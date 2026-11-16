@@ -6,22 +6,27 @@ Better Level-Up! (Forever) is the WoW Forever (Classic beta, Interface 16001) bu
 
 - **Level-Up sounds** — a sound of your choice when you ding, with queueing, volume, and channel control.
 - **Quest sounds** — accept, complete, progress, and turn-in triggers.
+- **Legacy task sounds** — Task Complete and Task Progress subscribe to the
+  framework's achievement/criteria owner. Their selections, `None`, module
+  switches and sound-volume policies use the normal BLU sound registry.
 - **Reputation sounds** — rank-up triggers for faction grinds.
 - **Honor rank sounds** — PvP rank progression triggers on the classic honor system.
 - **Combat triggers** — Bloodlust/Heroism and proc-style combat cues through the RGXCombat integration.
 - **Collections tab** — collectible milestone triggers (mounts, pets, toys, transmog) are reserved for the Forever client's Collections system.
 - **Minimap button** — left-click opens the options panel; drag to reposition; Ctrl+Right-click hides it (`/blu icon on` restores).
-- **Full options panel** — General, Combat, Honor, Level Up, Loot, Quest, Reputation, Profiles, and Sounds tabs with profile support.
+- **Full options panel** — General, Combat, Honor, Level Up, Legacy, Loot, Quest, Reputation, Profiles, and Sounds tabs with profile support.
 - **Custom sounds** — add your own .ogg files, or choose from the bundled BLU defaults and shared-media packs.
 
 ## Removed vs Retail BLU
 
-WoW Forever is an Era-lineage client; these retail systems do not exist there and their modules, tabs, sounds, and defaults are gone: Achievements, Battle Pets, Collectibles, Delves, Housing, Prey, Renown, and the Trading Post.
+Forever's Legacy tasks use the achievement/criteria event interface; they are
+not a claim that Retail achievement content exists in Forever. Unavailable
+Retail systems remain excluded rather than reintroduced by this adapter.
 
 ## Installation
 
 1. Install [RGX-Framework](https://github.com/RGXMods/RGX-Framework) (required dependency).
-2. Copy the `BLU_Forever` folder to `World of Warcraft\_classic_beta_\Interface\AddOns\`.
+2. Copy the `BLU_Forever` folder to `World of Warcraft\_forever_\Interface\AddOns\`.
 3. `/reload` or restart the client, and enable both addons.
 
 ## Commands
