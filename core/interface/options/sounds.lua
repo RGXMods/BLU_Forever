@@ -33,6 +33,8 @@ end
 
 function BLU.RefreshSoundPackUI()
     BLU:PrintDebug("[Options/Sounds] RefreshSoundPackUI called")
+    -- Every tab lists sounds (the per-event dropdowns), so mark them all stale; each rebuilds when next shown.
+    if BLU.InvalidateAllTabs then BLU:InvalidateAllTabs() end
     if not BLU.OptionsPanel or not BLU.OptionsPanel.contents then
         return false
     end
@@ -65,6 +67,7 @@ function BLU.RefreshSoundPackUI()
         BLU:PrintDebug("Failed to rebuild Sounds tab: " .. tostring(err))
         return false
     end
+    soundsContent._bluDirty = nil
 
     return true
 end
@@ -83,15 +86,15 @@ function BLU.CreateSoundsPanel(panel)
 
 	local pageBg = content:CreateTexture(nil, "BACKGROUND")
 	pageBg:SetAllPoints()
-	pageBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+	pageBg:SetColorTexture(BLU.Color("fill", 0.04, 0.06, 0.08, 0.35))
 
 	local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
 	titleBar:SetPoint("TOPLEFT", 0, 0)
 	titleBar:SetPoint("TOPRIGHT", 0, 0)
 	titleBar:SetHeight(44)
 	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
-	titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+	titleBar:SetBackdropColor(BLU.Color("fill", 0.06, 0.10, 0.16, 0.95))
+	titleBar:SetBackdropBorderColor(BLU.Color("border", 0.10, 0.20, 0.28, 1))
 
 	local titleIcon = titleBar:CreateTexture(nil, "ARTWORK")
 	titleIcon:SetSize(24, 24)
@@ -100,14 +103,14 @@ function BLU.CreateSoundsPanel(panel)
 
 	local titleLabel = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	titleLabel:SetPoint("LEFT", titleIcon, "RIGHT", 8, 0)
-	titleLabel:SetText("|cff05dffaSounds|r")
+	titleLabel:SetText(BLU.Hex() .. "Sounds|r")
 
     local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     intro:SetPoint("TOPLEFT", 0, -64)
     intro:SetPoint("TOPRIGHT", 0, -64)
     intro:SetJustifyH("LEFT")
     intro:SetWordWrap(true)
-    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetTextColor(BLU.Color("text", 0.6, 0.66, 0.72))
     intro:SetText("Browse installed sound packs and manage sounds for the active profile.")
 
     local pageContent = content
@@ -117,8 +120,8 @@ function BLU.CreateSoundsPanel(panel)
     installedPanel:SetPoint("TOPRIGHT", pageContent, "TOP", -12, -102)
     installedPanel:SetPoint("BOTTOMLEFT", pageContent, "BOTTOMLEFT", 0, 5)
     installedPanel:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
-    installedPanel:SetBackdropColor(0.06, 0.06, 0.06, 0.95)
-    installedPanel:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    installedPanel:SetBackdropColor(BLU.Color("fill", 0.06, 0.06, 0.06, 0.95))
+    installedPanel:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
 
     local scrollFrame = CreateFrame("ScrollFrame", nil, installedPanel, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT", 8, -8)
@@ -155,7 +158,7 @@ function BLU.CreateSoundsPanel(panel)
     headerNote:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", -12, -6)
     headerNote:SetJustifyH("LEFT")
     headerNote:SetWordWrap(true)
-    headerNote:SetTextColor(0.78, 0.78, 0.78)
+    headerNote:SetTextColor(BLU.Color("text", 0.78, 0.78, 0.78))
     headerNote:SetText("BLU lists its built-in libraries, your manually added custom sounds, and any supported third-party sound packs detected from other addons.")
 
     local startY = -72
@@ -212,14 +215,14 @@ function BLU.CreateSoundsPanel(panel)
             id = "wow_default_blu",
             name = "wow default-blu",
             icon = ADDON_PATH .. "media\\Textures\\icon.tga",
-            status = "|cff05dffaBLU defaults|r",
+            status = BLU.Hex() .. "BLU defaults|r",
             soundCount = 0,
         },
         {
             id = "other_games_blu",
             name = "other games-blu",
             icon = ADDON_PATH .. "media\\Textures\\icon.tga",
-            status = "|cff05dffaBLU game library|r",
+            status = BLU.Hex() .. "BLU game library|r",
             soundCount = 0,
         },
         {
@@ -318,8 +321,8 @@ function BLU.CreateSoundsPanel(panel)
     managerPanel:SetPoint("TOPRIGHT", pageContent, "TOPRIGHT", -10, -102)
     managerPanel:SetPoint("BOTTOMRIGHT", pageContent, "BOTTOMRIGHT", -10, 5)
     managerPanel:SetBackdrop(BLU.Modules.design.Backdrops.Dark)
-    managerPanel:SetBackdropColor(0.06, 0.06, 0.06, 0.95)
-    managerPanel:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    managerPanel:SetBackdropColor(BLU.Color("fill", 0.06, 0.06, 0.06, 0.95))
+    managerPanel:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
 
     local managerHeader = BLU.Modules.design:CreateHeader(managerPanel, "User Custom Sounds", "Interface\\Icons\\INV_Misc_Coin_18")
     managerHeader:SetPoint("TOPLEFT", 8, -8)
@@ -330,7 +333,7 @@ function BLU.CreateSoundsPanel(panel)
     managerNote:SetPoint("TOPRIGHT", managerHeader, "BOTTOMRIGHT", -4, -8)
     managerNote:SetJustifyH("LEFT")
     managerNote:SetWordWrap(true)
-    managerNote:SetTextColor(0.78, 0.78, 0.78)
+    managerNote:SetTextColor(BLU.Color("text", 0.78, 0.78, 0.78))
     managerNote:SetText("Add .ogg, .mp3, or .wav files from an AddOns sound folder. Enter a filename such as victory.ogg, or paste its full Interface\\AddOns path. These sounds belong to the active profile; select them on an event page after adding them here.")
 
     local addButton = BLU.Modules.design:CreateActionButton(
@@ -349,7 +352,7 @@ function BLU.CreateSoundsPanel(panel)
 
     local countLabel = managerPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     countLabel:SetPoint("LEFT", addButton, "RIGHT", 10, 0)
-    countLabel:SetTextColor(0.7, 0.7, 0.7)
+    countLabel:SetTextColor(BLU.Color("text", 0.7, 0.7, 0.7))
     countLabel:SetText("Loaded: " .. tostring(customSoundCount))
 
     local listFrame = CreateFrame("ScrollFrame", nil, managerPanel, "UIPanelScrollFrameTemplate")
@@ -389,7 +392,7 @@ function BLU.CreateSoundsPanel(panel)
         emptyText:SetPoint("TOPLEFT", 4, -4)
         emptyText:SetPoint("RIGHT", -4, 0)
         emptyText:SetJustifyH("LEFT")
-        emptyText:SetTextColor(0.65, 0.65, 0.65)
+        emptyText:SetTextColor(BLU.Color("text", 0.65, 0.65, 0.65))
         emptyText:SetText("No user custom sounds are loaded.")
         listContent:SetHeight(40)
     else
@@ -400,8 +403,8 @@ function BLU.CreateSoundsPanel(panel)
             row:SetWidth(294)
             row:SetHeight(rowHeight)
             row:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-            row:SetBackdropColor(0.08, 0.11, 0.15, 0.90)
-            row:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+            row:SetBackdropColor(BLU.Color("fill", 0.08, 0.11, 0.15, 0.90))
+            row:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
 
             local soundName = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
             soundName:SetPoint("TOPLEFT", 8, -6)
@@ -413,7 +416,7 @@ function BLU.CreateSoundsPanel(panel)
             soundPath:SetPoint("TOPLEFT", soundName, "BOTTOMLEFT", 0, -2)
             soundPath:SetPoint("RIGHT", -88, 0)
             soundPath:SetJustifyH("LEFT")
-            soundPath:SetTextColor(0.65, 0.65, 0.65)
+            soundPath:SetTextColor(BLU.Color("text", 0.65, 0.65, 0.65))
             local sourceLabel = entry.source and ("  |cff777777[" .. tostring(entry.source) .. "]|r") or ""
             soundPath:SetText((entry.file or "") .. sourceLabel)
 
@@ -423,7 +426,7 @@ function BLU.CreateSoundsPanel(panel)
                 removeButton:SetFrameStrata("HIGH")
                 removeButton:Show()
                 if removeButton.label then
-                    removeButton.label:SetTextColor(1.0, 0.35, 0.35)
+                    removeButton.label:SetTextColor(BLU.Color("text", 1.0, 0.35, 0.35))
                 end
                 removeButton:SetScript("OnClick", function()
                     local soundsModule = BLU.Modules and BLU.Modules["usersounds"]
@@ -442,7 +445,7 @@ function BLU.CreateSoundsPanel(panel)
             else
                 local loadedLabel = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                 loadedLabel:SetPoint("TOPRIGHT", row, "TOPRIGHT", -8, -15)
-                loadedLabel:SetTextColor(0.36, 0.88, 0.52)
+                loadedLabel:SetTextColor(BLU.Color("text", 0.36, 0.88, 0.52))
                 loadedLabel:SetText("Loaded")
             end
         end

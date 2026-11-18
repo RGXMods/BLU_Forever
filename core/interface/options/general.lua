@@ -69,15 +69,15 @@ function BLU.CreateGeneralPanel(panel)
 
     local contentBg = content:CreateTexture(nil, "BACKGROUND")
     contentBg:SetAllPoints()
-    contentBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+    contentBg:SetColorTexture(BLU.Color("fill", 0.04, 0.06, 0.08, 0.35))
 
 	local titleBar = CreateFrame("Frame", nil, content, "BackdropTemplate")
 	titleBar:SetPoint("TOPLEFT", 0, 0)
 	titleBar:SetPoint("TOPRIGHT", 0, 0)
 	titleBar:SetHeight(44)
 	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
-	titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+	titleBar:SetBackdropColor(BLU.Color("fill", 0.06, 0.10, 0.16, 0.95))
+	titleBar:SetBackdropBorderColor(BLU.Color("border", 0.10, 0.20, 0.28, 1))
 
 	local titleIcon = titleBar:CreateTexture(nil, "ARTWORK")
 	titleIcon:SetSize(24, 24)
@@ -86,14 +86,14 @@ function BLU.CreateGeneralPanel(panel)
 
 	local titleLabel = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	titleLabel:SetPoint("LEFT", titleIcon, "RIGHT", 8, 0)
-	titleLabel:SetText("|cff05dffaGeneral|r")
+	titleLabel:SetText(BLU.Hex() .. "General|r")
 
     local intro = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     intro:SetPoint("TOPLEFT", 0, -64)
     intro:SetPoint("TOPRIGHT", 0, -64)
     intro:SetJustifyH("LEFT")
     intro:SetWordWrap(true)
-    intro:SetTextColor(0.6, 0.66, 0.72)
+    intro:SetTextColor(BLU.Color("text", 0.6, 0.66, 0.72))
     intro:SetText("Configure BLU's core behavior and sound output.")
 
     if not EnsureProfileDefaults() then
@@ -158,7 +158,7 @@ function BLU.CreateGeneralPanel(panel)
     soundDesc:SetPoint("RIGHT", soundSection.content, "RIGHT", -8, 0)
     soundDesc:SetJustifyH("LEFT")
     soundDesc:SetWordWrap(true)
-    soundDesc:SetTextColor(0.72, 0.78, 0.86)
+    soundDesc:SetTextColor(BLU.Color("text", 0.72, 0.78, 0.86))
     soundDesc:SetText("All BLU sounds play through the selected channel. Adjusting the volume here changes your in-game channel level.")
 
     local soundChannelLabel = soundSection.content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -178,20 +178,20 @@ function BLU.CreateGeneralPanel(panel)
     channelButton:SetPoint("TOPRIGHT", soundSection.content, "TOPRIGHT", -8, -72)
     channelButton:SetHeight(22)
     channelButton:SetBackdrop(BLU.Modules.design.Backdrops.Button)
-    channelButton:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
-    channelButton:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    channelButton:SetBackdropColor(BLU.Color("fill", 0.10, 0.14, 0.19, 0.96))
+    channelButton:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
     channelButton:RegisterForClicks("LeftButtonUp")
 
     local channelText = channelButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     channelText:SetPoint("LEFT", 8, 0)
     channelText:SetPoint("RIGHT", -18, 0)
     channelText:SetJustifyH("LEFT")
-    channelText:SetTextColor(0.84, 0.84, 0.84, 1)
+    channelText:SetTextColor(BLU.Color("text", 0.84, 0.84, 0.84, 1))
 
     local channelArrow = channelButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     channelArrow:SetPoint("RIGHT", -6, 0)
     channelArrow:SetText("v")
-    channelArrow:SetTextColor(0.70, 0.78, 0.86, 1)
+    channelArrow:SetTextColor(BLU.Color("text", 0.70, 0.78, 0.86, 1))
 
     channelButton:SetScript("OnClick", function(self)
         ToggleDropDownMenu(1, nil, soundChannelDropdown, self, 0, 0)
@@ -204,7 +204,7 @@ function BLU.CreateGeneralPanel(panel)
         GameTooltip:Show()
     end)
     channelButton:SetScript("OnLeave", function(self)
-        self:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+        self:SetBackdropBorderColor(BLU.Color("border", 0.14, 0.20, 0.28, 1))
         GameTooltip_Hide()
     end)
 
@@ -287,7 +287,7 @@ function BLU.CreateGeneralPanel(panel)
     SetSelectedChannel(profile.soundChannel or "Master")
 
     StaticPopupDialogs["BLU_ADD_CUSTOM_SOUND"] = {
-        text = "Add a custom sound file for BLU.",
+        text = "Add a custom sound file for BLU.\nPut your files in Interface\\AddOns\\BLU_Sounds\\ and restart the game once, then type the file name.\nNamed custom01 to custom99, they appear on their own.",
         subText = "Enter a short file name like myfile or myfile.ogg. You can also paste a full path like Interface\\AddOns\\myfile.ogg. BLU will try common AddOns folders automatically.",
         button1 = ADD,
         button2 = CANCEL,

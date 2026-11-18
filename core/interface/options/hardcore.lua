@@ -15,7 +15,7 @@ function BLU.CreateHardcorePanel(panel)
 
 	local contentBg = content:CreateTexture(nil, "BACKGROUND")
 	contentBg:SetAllPoints()
-	contentBg:SetColorTexture(0.04, 0.06, 0.08, 0.35)
+	contentBg:SetColorTexture(BLU.Color("fill", 0.04, 0.06, 0.08, 0.35))
 
 	if not BLU.db then
 		local unavailable = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -32,8 +32,8 @@ function BLU.CreateHardcorePanel(panel)
 	titleBar:SetPoint("TOPRIGHT", 0, 0)
 	titleBar:SetHeight(44)
 	titleBar:SetBackdrop(BLU.Modules.design.Backdrops.Solid)
-	titleBar:SetBackdropColor(0.06, 0.10, 0.16, 0.95)
-	titleBar:SetBackdropBorderColor(0.10, 0.20, 0.28, 1)
+	titleBar:SetBackdropColor(BLU.Color("fill", 0.06, 0.10, 0.16, 0.95))
+	titleBar:SetBackdropBorderColor(BLU.Color("border", 0.10, 0.20, 0.28, 1))
 
 	local icon = titleBar:CreateTexture(nil, "ARTWORK")
 	icon:SetSize(24, 24)
@@ -42,7 +42,7 @@ function BLU.CreateHardcorePanel(panel)
 
 	local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
-	title:SetText("|cff05dffaHardcore Sounds|r")
+	title:SetText(BLU.Hex() .. "Hardcore Sounds|r")
 
 	local switchFrame = CreateFrame("Frame", nil, titleBar)
 	switchFrame:SetSize(44, 20)
@@ -122,7 +122,7 @@ function BLU.CreateHardcorePanel(panel)
 	intro:SetPoint("TOPRIGHT", 0, -64)
 	intro:SetJustifyH("LEFT")
 	intro:SetWordWrap(true)
-	intro:SetTextColor(0.6, 0.66, 0.72)
+	intro:SetTextColor(BLU.Color("text", 0.6, 0.66, 0.72))
 	intro:SetText("Pick a sound for each death trigger. Made for hardcore and self-found runs, where every death is a story.")
 
 	if BLU.CreateSoundDropdown then

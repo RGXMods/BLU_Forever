@@ -39,7 +39,8 @@ end
 
 function HardcoreModule:OnCombatLog(...)
     local subevent = select(2, ...)
-    if subevent ~= "UNIT_DIED" and subevent ~= "PARTY_KILL" then return end
+    -- UNIT_DIED reports every death; PARTY_KILL is the killer's credit for the same death.
+    if subevent ~= "UNIT_DIED" then return end
 
     local destGUID = select(8, ...)
     local destName = select(9, ...)
@@ -71,10 +72,9 @@ function HardcoreModule:OnUnitDied(guid, name, flags)
     local modules = BLU.db.modules
     if modules and modules.hardcore == false then return end
 
-    if BLU.Modules.registry and BLU.Modules.registry.PlaySound then
-        pcall(function()
-            BLU.Modules.registry:PlaySound(eventType)
-        end)
+    -- Play the sound picked for this death category (the registry's PlaySound takes a sound id).
+    if BLU.PlayCategorySound then
+        BLU:PlayCategorySound(eventType)
     end
 end
 

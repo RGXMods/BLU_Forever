@@ -79,7 +79,7 @@ function BLU:Initialize()
 		"registry",
 		"internal_sounds", -- Must come after registry
 		"usersounds", -- Must come after registry
-		"sharedmedia", -- Optional LibSharedMedia integration (detected at runtime)
+		"sharedmedia", -- Shared media registry (sounds found in installed addons)
 		"loader"
 	})
 
