@@ -38,6 +38,8 @@ WoW Forever is an Era-lineage client; these retail systems do not exist there an
 
 ## Your own sounds
 
+BLU Forever also ships an empty `sounds\user` folder inside its own folder, beside its built-in `sounds\wow_default` (the game's own sounds) and `sounds\game` (sounds from other games). Files you put in `sounds\user` work the same way, but a BLU Forever update replaces that folder, so keep a copy or use `BLU_Sounds`.
+
 Create a folder named `BLU_Sounds` in `Interface\AddOns\`, beside the BLU Forever folder and not inside it, and put your sound files (`.ogg`, `.mp3`, `.wav`) there. BLU Forever updates replace everything inside their own folder, but never touch `BLU_Sounds`. Name files `custom01` to `custom99` and they appear in the sound lists on their own; any other name is added from `/blu` > Sounds > Add Custom Sound (`myfile` or `myfile.ogg`) or with `/blu addcustom myfile`. Type the name however you remember it: the extension can be left off or wrong (a file that Windows shows as `boop.ogg` but is really `boop.ogg.ogg` is found too), spaces, underscores and hyphens count as the same, and a sound in a subfolder of `BLU_Sounds` (such as `sounds`, `media\sounds`, or `BLU_Sounds` unzipped inside itself) is found by its name alone. You can also paste the full path.
 
 WoW only sees files that existed when the game started, so fully restart after adding files (a `/reload` is not enough). `/blu folder` shows the folder and how many custom sounds BLU Forever found. When a name is not found, BLU Forever says where to put the file. Files you put in BLU Forever's own `user\sounds` folder with earlier versions still work, but move them to `BLU_Sounds`: anything inside the BLU Forever folder is deleted when BLU Forever updates.

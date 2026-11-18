@@ -52,14 +52,14 @@ function InternalSounds:RegisterSoundPacks()
         id = "blu_default",
         name = "BLU Defaults",
         sounds = {
-            honor_default = { name = "Default Honor", file = ADDON_PATH .. "media\\sounds\\honor_default_med.ogg", duration = 2.0, category = "honorrank", source = "BLU", isInternal = true },
-            level_default = { name = "Default Level Up", file = ADDON_PATH .. "media\\sounds\\level_default_med.ogg", duration = 2.0, category = "levelup", source = "BLU", isInternal = true },
-            quest_accept_default = { name = "Default Quest Accept", file = ADDON_PATH .. "media\\sounds\\quest_accept_default_med.ogg", duration = 2.0, category = "questaccept", source = "BLU", isInternal = true },
-            quest_default = { name = "Default Quest Complete", file = ADDON_PATH .. "media\\sounds\\quest_default_med.ogg", duration = 2.0, category = "quest", source = "BLU", isInternal = true },
-            quest_complete_default = { name = "Default Quest Ready To Turn In", file = ADDON_PATH .. "media\\sounds\\quest_default_med.ogg", duration = 2.0, category = "questcomplete", source = "BLU", isInternal = true },
-            quest_progress_default = { name = "Default Quest Progress", file = ADDON_PATH .. "media\\sounds\\quest_accept_default_med.ogg", duration = 2.0, category = "questprogress", source = "BLU", isInternal = true },
-            quest_turnin_default = { name = "Default Quest Turn-In", file = ADDON_PATH .. "media\\sounds\\quest_default_med.ogg", duration = 2.0, category = "questturnin", source = "BLU", isInternal = true },
-            rep_default = { name = "Default Reputation", file = ADDON_PATH .. "media\\sounds\\rep_default_med.ogg", duration = 2.0, category = "reputation", source = "BLU", isInternal = true },
+            honor_default = { name = "Default Honor", file = ADDON_PATH .. "sounds\\wow_default\\honor_default_med.ogg", duration = 2.0, category = "honorrank", source = "BLU", isInternal = true },
+            level_default = { name = "Default Level Up", file = ADDON_PATH .. "sounds\\wow_default\\level_default_med.ogg", duration = 2.0, category = "levelup", source = "BLU", isInternal = true },
+            quest_accept_default = { name = "Default Quest Accept", file = ADDON_PATH .. "sounds\\wow_default\\quest_accept_default_med.ogg", duration = 2.0, category = "questaccept", source = "BLU", isInternal = true },
+            quest_default = { name = "Default Quest Complete", file = ADDON_PATH .. "sounds\\wow_default\\quest_default_med.ogg", duration = 2.0, category = "quest", source = "BLU", isInternal = true },
+            quest_complete_default = { name = "Default Quest Ready To Turn In", file = ADDON_PATH .. "sounds\\wow_default\\quest_default_med.ogg", duration = 2.0, category = "questcomplete", source = "BLU", isInternal = true },
+            quest_progress_default = { name = "Default Quest Progress", file = ADDON_PATH .. "sounds\\wow_default\\quest_accept_default_med.ogg", duration = 2.0, category = "questprogress", source = "BLU", isInternal = true },
+            quest_turnin_default = { name = "Default Quest Turn-In", file = ADDON_PATH .. "sounds\\wow_default\\quest_default_med.ogg", duration = 2.0, category = "questturnin", source = "BLU", isInternal = true },
+            rep_default = { name = "Default Reputation", file = ADDON_PATH .. "sounds\\wow_default\\rep_default_med.ogg", duration = 2.0, category = "reputation", source = "BLU", isInternal = true },
         }
     }
     if RegisterPack(defaultPack.id, defaultPack.name, defaultPack.sounds) then
@@ -169,7 +169,7 @@ function InternalSounds:RegisterSoundPacks()
         for _, soundData in ipairs(packData.sounds) do
             soundsToRegister[soundData.soundId] = {
                 name = soundData.name,
-                file = ADDON_PATH .. "media\\sounds\\" .. soundData.file_id .. "_med.ogg",
+                file = ADDON_PATH .. "sounds\\game\\" .. soundData.file_id .. "_med.ogg",
                 duration = soundData.duration or 2.0,
                 category = "all",
                 source = "BLU",
