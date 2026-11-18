@@ -163,6 +163,16 @@ SlashCmdList["BLUF"] = function(msg)
                     err and (" |cffff0000" .. err .. "|r") or ""))
             end
         end
+    elseif command == "folder" or command == "soundfolder" then
+        local users = BLU.Modules and BLU.Modules["usersounds"]
+        local folder = users and users.FOLDER or "Interface\\AddOns\\BLU_Sounds\\"
+        BLU:Print("|cff00ccffBLU custom sounds:|r put .ogg, .mp3 or .wav files in |cffffffff" .. folder .. "|r (create the BLU_Sounds folder next to BLU, so updates never touch it).")
+        BLU:Print("  Name them custom01 to custom99 and they appear in the sound lists, or add any name with |cffffff00/blu addcustom myfile|r.")
+        BLU:Print("  WoW only sees files that existed when the game started: fully restart after adding files, then use |cffffff00/blu rescan|r.")
+        if users and users.GetCustomSoundEntries then
+            local ok, entries = pcall(users.GetCustomSoundEntries, users)
+            if ok and type(entries) == "table" then BLU:Print("  Custom sounds found now: " .. tostring(#entries)) end
+        end
     elseif command == "refresh" or command == "rescan" then
         BLU:PrintDebug("[Commands] Refreshing external sounds")
         if BLU.RefreshUserSounds then

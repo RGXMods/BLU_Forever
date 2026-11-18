@@ -38,9 +38,9 @@ WoW Forever is an Era-lineage client; these retail systems do not exist there an
 
 ## Your own sounds
 
-Put your sound files (`.ogg`, `.mp3`, `.wav`) in `Interface\AddOns\BLU_Forever\user\sounds\`, then add them from `/blu` > Sounds > Add Custom Sound by name (`myfile` or `myfile.ogg`) or with `/blu addcustom myfile`. Files named `custom01`, `sound01`, `usersound01` or `blu_custom01` (up to 99) in that folder, or in `user\`, are picked up automatically.
+Create a folder named `BLU_Sounds` in `Interface\AddOns\`, beside the BLU Forever folder and not inside it, and put your sound files (`.ogg`, `.mp3`, `.wav`) there. BLU Forever updates replace everything inside their own folder, but never touch `BLU_Sounds`. Name files `custom01` to `custom99` and they appear in the sound lists on their own; any other name is added from `/blu` > Sounds > Add Custom Sound (`myfile` or `myfile.ogg`) or with `/blu addcustom myfile`.
 
-BLU looks for a name only in its own folders, in this order: `user\sounds`, `user`, `sounds`, `media` and `media\sounds` inside `Interface\AddOns\BLU_Forever\`, then `Interface\AddOns\` itself. A WoW addon cannot list folders, so it never searches other addons by name. A name that exactly matches a sound already registered in BLU (a sound pack or Shared Media entry) also works. For a file anywhere else, give the full path: `/blu addcustom Interface\AddOns\SomePack\weird\place\file.ogg`. New files only become playable after a full game restart, not a `/reload`; when BLU cannot find a name it tells you where to put the file.
+WoW only sees files that existed when the game started, so fully restart after adding files (a `/reload` is not enough). `/blu folder` shows the folder and how many custom sounds BLU Forever found. When a name is not found, BLU Forever says where to put the file. Files you put in BLU Forever's own `user\sounds` folder with earlier versions still work, but move them to `BLU_Sounds`: anything inside the BLU Forever folder is deleted when BLU Forever updates.
 
 Settings are stored in `BLUForeverDB` with full profile support (Profiles tab).
 
