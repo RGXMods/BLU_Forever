@@ -9,6 +9,9 @@ local BLU = _G["BLU"]
 local SoundRegistry = {}
 
 local defaultBluSounds = {
+    -- Reuse existing shipped completion/progress assets for Legacy tasks.
+    achievement = "quest_default",
+    achievementprogress = "quest_progress_default",
     levelup = "level_default",
     quest = "quest_default",
     questcomplete = "quest_complete_default",
@@ -23,6 +26,7 @@ local defaultBluSounds = {
 }
 
 local moduleCategoryMap = {
+    achievementprogress = "achievement",
     questaccept = "quest",
     questcomplete = "quest",
     questturnin = "quest",

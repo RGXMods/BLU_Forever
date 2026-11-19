@@ -38,6 +38,7 @@
 
 <!-- Feature Modules -->
 <Script file="modules/Quest/Quest.lua"/>
+<Script file="modules/Achievement/Achievement.lua"/>
 <Script file="modules/Hardcore/Hardcore.lua"/>
 <Script file="modules/Debug/Debug.lua"/>
 <Script file="modules/Combat/Combat.lua"/>
