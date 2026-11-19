@@ -1,3 +1,7 @@
+# v1.1.16 - 2026-11-19
+
+- Forever Legacy task sounds work: completing a task, and task progress, play the sounds picked for them (they were not connected to the framework's achievement callbacks).
+
 # v1.1.15 - 2026-11-18
 
 - Custom sounds have a folder updates never touch: create `Interface\AddOns\BLU_Sounds\` beside the addon folder and put your .ogg, .mp3 or .wav files there. Updates never touch it, files named custom01 to custom99 appear on their own, and a name you add is looked for there first. `/blu folder` shows the folder and what was found. The not-found message and the Add Custom Sound dialog say where to put files and that a full game restart is needed. Older folders keep working.
