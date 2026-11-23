@@ -1,3 +1,8 @@
+# v1.1.17 - 2026-11-22
+
+- Fresh installs now include `sounds\user` for custom audio. The release workflow uses the corrected framework packager.
+- The missing-file message points at that same shipped folder. The separate `BLU_Sounds` folder and legacy paths keep working.
+
 # v1.1.16 - 2026-11-19
 
 - Forever Legacy task sounds work: completing a task, and task progress, play the sounds picked for them (they were not connected to the framework's achievement callbacks).
